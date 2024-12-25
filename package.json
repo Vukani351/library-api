@@ -1,0 +1,35 @@
+{
+  "name": "library-api",
+  "version": "1.0.0",
+  "description": "This api is to service the library micro application i am creating for storing booknames & also managing the people i borrow books to and which books, also help with managing the books i am looking for and where i might buy them at what price",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vukani351/library-api.git"
+  },
+  "keywords": [
+    "library"
+  ],
+  "author": "vukani gcabashe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vukani351/library-api/issues"
+  },
+  "homepage": "https://github.com/vukani351/library-api#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fastify": "^5.2.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.12.0",
+    "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "sequelize-cli": "^6.6.2"
+  }
+}
