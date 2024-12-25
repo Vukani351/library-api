@@ -8,7 +8,7 @@ const sequelize = require('./config/db');
 
 // register our jwt decorator:
 fastify.register(require('@fastify/jwt'), {
-  secret: process.env.devsecrete
+  secret: process.env.devsecrete  || 'optionalsecretkey',
 })
 
 // Register routes
