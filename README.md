@@ -41,7 +41,6 @@ This is the process for running the project on your machine.
 > Just recording the process I am following including the pitfalls.
 
 
-
 ## Related
 
 Here are some related projects
