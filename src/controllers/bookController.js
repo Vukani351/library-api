@@ -3,8 +3,14 @@ const User = require('../models/userModel');
 
 exports.addBook = async (request, reply) => {
   try {
-    const { title, author, owner, library_id=0, created_at, updated_at } = request.body;
-    const book = await Book.findCreateFind({ title, author, library_id, owner, created_at, updated_at });
+    const userId = request.user.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return reply.code(404).send({ error: 'User not found.' });
+    }
+
+    const { title, author, library_id=0, created_at, updated_at } = request.body;
+    const book = await Book.findCreateFind({ title, author, library_id, userId });
     console.log("Book Created:\n", book);
     reply.code(201).send(book);
   } catch (error) {
