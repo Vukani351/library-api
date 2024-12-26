@@ -6,6 +6,9 @@ async function userRoutes(fastify, options) {
   fastify.post('/create', userController.register);
   fastify.post('/login', userController.login);
   fastify.post('/logout', userController.logout);
+  // Protected route using the 'authenticate' decorator
+  fastify.get('/profile', { preHandler: [fastify.authenticate] }, userController.getProfile);
+
 }
 
 module.exports = userRoutes;

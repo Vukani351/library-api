@@ -11,9 +11,18 @@ fastify.register(require('@fastify/jwt'), {
   secret: process.env.devsecrete  || 'optionalsecretkey',
 })
 
+// Add JWT authentication decorator
+fastify.decorate('authenticate', async (request, reply) => {
+    try {
+      await request.jwtVerify(); // Verifies the JWT token in the request
+    } catch (err) {
+      reply.code(401).send({ error: 'Unauthorized' });
+    }
+  });
+
 // Register routes
 fastify.register(userRoutes, { prefix: '/api/user' });
-fastify.register(libraryRoutes, { prefix: '/api/librarie' });
+fastify.register(libraryRoutes, { prefix: '/api/library' });
 fastify.register(bookRoutes, { prefix: '/api/book' });
 
 // Register CORS

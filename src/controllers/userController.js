@@ -92,3 +92,17 @@ exports.logout = async (request, reply) => {
   }
 };
 
+// Protected route example
+exports.getProfile = async (request, reply) => {
+  try {
+    const userId = request.user.id; // Extracted from JWT
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return reply.code(404).send({ error: 'User not found' });
+    }
+
+    reply.send({ user });
+  } catch (error) {
+    reply.code(500).send({ error: error.message });
+  }
+};

@@ -8,7 +8,7 @@ const Book = sequelize.define('Book', {
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
+  title: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
@@ -16,8 +16,8 @@ const Book = sequelize.define('Book', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-  owner: {
-    type: DataTypes.STRING(100),
+  owner_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   library_id: {
