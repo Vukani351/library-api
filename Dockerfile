@@ -3,7 +3,6 @@ FROM node:18.20.5
 # WORKDIR /src
 
 COPY package.json package-lock.json ./
-COPY .env ./
 
 RUN npm install
 
