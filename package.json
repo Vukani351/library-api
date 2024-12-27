@@ -22,6 +22,7 @@
   "homepage": "https://github.com/vukani351/library-api#readme",
   "dependencies": {
     "@fastify/cors": "^10.0.1",
+    "@fastify/diagnostics-channel": "^5.0.0",
     "@fastify/jwt": "^9.0.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

@@ -25,6 +25,8 @@ fastify.register(userRoutes, { prefix: '/api/user' });
 fastify.register(libraryRoutes, { prefix: '/api/library' });
 fastify.register(bookRoutes, { prefix: '/api/book' });
 
+fastify.register(require('@fastify/diagnostics-channel'), {})
+
 // Register CORS
 (async () => {
   try {
