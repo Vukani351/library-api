@@ -28,17 +28,9 @@ fastify.register(bookRoutes, { prefix: '/api/book' });
 fastify.register(require('@fastify/diagnostics-channel'), {})
 
 // Register CORS
-(async () => {
-  try {
-    await fastify.register(cors, {
-      // Add your CORS options here if needed
-    });
-    console.log('CORS registered successfully');
-  } catch (err) {
-    console.error('Error registering CORS:', err);
-    process.exit(1);
-  }
-})();
+/*await fastify.register(cors, {
+  // Add your CORS options here if needed
+});*/
 
 // Database connection
 sequelize
