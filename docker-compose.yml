@@ -12,6 +12,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - internalnet
+
   db:
     image: mysql:8
     restart: always
@@ -25,6 +28,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - internalnet
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
@@ -36,3 +42,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - internalnet
+
+networks:
+  internalnet:
+    driver: bridge

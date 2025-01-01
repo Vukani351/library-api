@@ -1,8 +1,8 @@
 FROM node:18.20.5
 
-# WORKDIR /src
+WORKDIR /src
 
-COPY package.json package-lock.json ./
+COPY package.json ./
 
 RUN npm install
 
@@ -10,5 +10,4 @@ COPY . .
 
 EXPOSE 3000
 
-RUN npm run start
-CMD ["node", "node src/server.js"]
+CMD ["node", "src/server.js"]
