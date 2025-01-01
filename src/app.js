@@ -5,32 +5,41 @@ const userRoutes = require('./routes/userRoutes');
 const libraryRoutes = require('./routes/libraryRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const sequelize = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
 
 // register our jwt decorator:
 fastify.register(require('@fastify/jwt'), {
   secret: process.env.devsecrete  || 'optionalsecretkey',
 })
 
-// Add JWT authentication decorator
-fastify.decorate('authenticate', async (request, reply) => {
-    try {
-      await request.jwtVerify(); // Verifies the JWT token in the request
-    } catch (err) {
-      reply.code(401).send({ error: 'Unauthorized' });
-    }
-  });
-
 // Register routes
 fastify.register(userRoutes, { prefix: '/api/user' });
 fastify.register(libraryRoutes, { prefix: '/api/library' });
 fastify.register(bookRoutes, { prefix: '/api/book' });
+fastify.register(authRoutes, { prefix: '/api/auth' });
 
 fastify.register(require('@fastify/diagnostics-channel'), {})
 
 // Register CORS
-/*await fastify.register(cors, {
-  // Add your CORS options here if needed
-});*/
+fastify.register(cors, {
+  // Add your CORS options here if needed.
+  origin: 'http://localhost:5173', // Allow requests from this origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+
+});
+
+// Add JWT authentication decorator
+fastify.decorate('authenticate', async (request, reply) => {
+  try {
+    console.log("request", request.authorization);
+    
+    await request.jwtVerify();
+  } catch (err) {
+    reply.code(401).send({ error: 'Unauthorized' });
+  }
+});
+
 
 // Database connection
 sequelize
