@@ -25,9 +25,9 @@ exports.register = async (request, reply) => {
 
   try {
     const { name, email, password } = request.body;
-    const user = await User.create({ name, email, password, created_at, updated_at });
-    const token = await reply.jwtSign({ name:user.name, email:user.email, id: user.id });
-    reply.code(201).send({ message: 'Registration successful', token:token, email: user.email });
+    console.log("user data: ", name, email, password);
+    const user = await User.create({ name: name, email: email, password: password});
+    reply.code(201).send(token);
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
@@ -50,7 +50,7 @@ exports.login = async (request, reply) => {
 
     // Sign a JWT
     const token = await reply.jwtSign({ id: user.id, email: user.email });
-    reply.send({ message: 'Login successful', token:token, email: email });
+    reply.send({ message: 'Login successful', token: token });
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
