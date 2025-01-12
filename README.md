@@ -1,6 +1,3 @@
-Here's the updated README with **logos for the languages and frameworks**:
-
----
 
 ## Title and Description:
 
@@ -137,4 +134,8 @@ personal-library/
 
 ## Todo:
 
+- Remove express & use fastify for a change.
 - Add a reply decorator for standardizing responses.
+- Create and test the docker file for running the application build.
+- add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.
+- deploy this to google cloud
