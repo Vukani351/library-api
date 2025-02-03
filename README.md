@@ -129,6 +129,15 @@ personal-library/
     ├── docker-compose.yml
     └── .env
 ```
+## Docker Commands:
+
+- How to run the project on docker
+>
+
+- Building the image
+> docker-compose up --build
+
+
 
 ---
 
@@ -137,5 +146,5 @@ personal-library/
 - Remove express & use fastify for a change.
 - Add a reply decorator for standardizing responses.
 - Create and test the docker file for running the application build.
-- add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.
-- deploy this to google cloud
+- add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.[]
+- deploy this to google cloud [-]

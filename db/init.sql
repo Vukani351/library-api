@@ -36,3 +36,15 @@ CREATE TABLE IF NOT EXISTS book (
   FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
+
+-- Insert a new user
+INSERT INTO user (name, email, password, created_at, updated_at)
+VALUES ('John Doe', 'john.doe@example.com', 'securepassword', NOW(), NOW());
+
+-- Insert a new library
+INSERT INTO library (name, user_id, created_at, updated_at)
+VALUES ('Central Library', 1, NOW(), NOW());
+
+-- Insert a new book
+INSERT INTO book (title, author, library_id, owner_id, created_at, updated_at)
+VALUES ('The Great Gatsby', 'F. Scott Fitzgerald', 1, 1, NOW(), NOW());

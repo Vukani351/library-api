@@ -1,16 +1,16 @@
-version: '3.8'
-
 services:
   db:
     image: mysql:8
     restart: always
     environment:
       MYSQL_DATABASE: library_db
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: vukani
+      MYSQL_PASSWORD: password123
+      MYSQL_ROOT_PASSWORD: password  # Ensure this is correctly set
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "db", "-u", "root", "-p", "password"]
       interval: 10s
@@ -26,28 +26,26 @@ services:
       - "8080:80"
     environment:
       PMA_HOST: db
-      PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: password
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - internalnet
-    
-  app:
-    build: .
+    depends_on:
+      - db
+
+  nodeapp:
+    build:
+      context: ./  # Ensure this path is correct
+      dockerfile: Dockerfile
+    restart: always
     ports:
       - "3000:3000"
     environment:
-      DB_NAME: library_db
-      DB_USER: root
-      DB_PASSWORD: password
       DB_HOST: db
-    depends_on:
-      db:
-        condition: service_healthy
+      DB_PORT: 3306
     networks:
       - internalnet
+    depends_on:
+      - db
 
 networks:
   internalnet:
