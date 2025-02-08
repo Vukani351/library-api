@@ -30,10 +30,12 @@ const Book = sequelize.define('Book', {
     onDelete: 'CASCADE', // Cascade delete if library is deleted
   },
   created_at: {
+    allowNull: true,
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
   updated_at: {
+    allowNull: true,
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
