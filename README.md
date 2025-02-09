@@ -134,7 +134,7 @@ personal-library/
 - How to run the project on docker
 >
 
-- Building the image
+- Building & running the image:
 > docker-compose up --build
 
 

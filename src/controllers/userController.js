@@ -73,7 +73,7 @@ exports.getProfile = async (request, reply) => {
       return reply.code(404).send({ error: 'User not found' });
     }
 
-    reply.send({ user });
+    reply.code(200).send({ user });
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }

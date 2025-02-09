@@ -55,7 +55,7 @@ exports.editBook = async (request, reply) => {
     });
 
     console.log("Book Edited:\n", book);
-    reply.code(201).send(book);
+    reply.code(201).send(await Book.findByPk(id));
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
