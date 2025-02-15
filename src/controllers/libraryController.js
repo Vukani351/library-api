@@ -3,7 +3,7 @@ const Library = require('../models/libraryModel');
 exports.createLibrary = async (request, reply) => {
   try {
     const { name, userId } = request.body;
-    const library = await Library.create({ name, userId });
+    const library = await Library.create({ name: name, user_id: userId });
     reply.code(201).send(library);
   } catch (error) {
     reply.code(500).send({ error: error.message });

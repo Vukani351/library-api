@@ -10,13 +10,13 @@ exports.addBook = async (request, reply) => {
       return reply.code(404).send({ error: 'User not found.' });
     }
 
-    const { title, author, library_id=0 } = request.body;
+    const { title, author, library_id=0, description } = request.body;
     created_at = new Date(); 
     const existing_book = await Book.findOne({ where: { title: title, author: author } });
     if (existing_book === null) {
       book = await Book.create(
         {
-          title: title, author: author, library_id: library_id, owner_id: userId
+          title: title, author: author, library_id: library_id, owner_id: userId, description: description
         }
       );
     } else {
@@ -36,7 +36,7 @@ exports.editBook = async (request, reply) => {
       return reply.code(404).send({ error: 'User not found for this book.' });
     }
 
-    const { id, title, author, owner_id, library_id } = request.body;
+    const { id, title, author, owner_id, library_id, description } = request.body;
     const previous_book_data = await Book.findByPk(id);
     
     if (!previous_book_data) {
@@ -46,7 +46,7 @@ exports.editBook = async (request, reply) => {
     // console.log("Book Created:\n", previous_book_data);
     const book = await Book.update(
       {
-        title: title, author: author, library_id: library_id, owner_id: owner_id
+        title: title, author: author, library_id: library_id, owner_id: owner_id, description: description
       },
       {
         where: { 

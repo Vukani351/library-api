@@ -12,6 +12,10 @@ const Library = sequelize.define('Library', {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
+  description: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,

@@ -57,7 +57,7 @@ exports.login = async (request, reply) => {
 
     // Sign a JWT
     const token = await reply.jwtSign({ id: user.id, email: user.email });
-    reply.code(200).send({ message: 'Login successful', data: {
+    reply.code(200).send({ message: 'Login successful', user: {
       id: user.id,
       username: user.name,
       email: user.email,
