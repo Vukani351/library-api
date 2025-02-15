@@ -20,14 +20,21 @@ exports.getUser = async (request, reply) => {
 };
 
 exports.register = async (request, reply) => {
+  console.log("User Routes ");
   const updated_at = new Date();
-  const created_at = new Date();
 
   try {
     const { name, email, password } = request.body;
-    console.log("user data: ", name, email, password);
-    const user = await User.create({ name: name, email: email, password: password});
-    reply.code(201).send(token);
+    console.warn("user data: ", name, email, password);
+    const user = await User.create({ 
+      name: name, 
+      email: email, 
+      password: password, 
+      created_at: created_at, 
+      updated_at, created_at
+    });
+
+    reply.code(201).send(token, user);
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
@@ -50,7 +57,13 @@ exports.login = async (request, reply) => {
 
     // Sign a JWT
     const token = await reply.jwtSign({ id: user.id, email: user.email });
-    reply.send({ message: 'Login successful', token: token });
+    reply.code(200).send({ message: 'Login successful', data: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      picture: user.picture,
+      token: token,
+    }});
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }

@@ -31,9 +31,6 @@ exports.googleLogin = async (req, reply) => {
       });
     }
 
-    // Generate a JWT token using fastify-jwt
-    const jwtToken = reply.jwtSign({ userId: user.id }, { expiresIn: '1h' });
-
     // Send response
     reply.code(200).send({
       message: 'Login successful',
@@ -42,8 +39,8 @@ exports.googleLogin = async (req, reply) => {
         name: user.name,
         email: user.email,
         picture: user.picture,
+        token: reply.jwtSign({ userId: user.id }, { expiresIn: '1h' }),
       },
-      token: jwtToken, // Send the token for further requests
     });
   } catch (error) {
     console.error('Error during Google login:', error);
