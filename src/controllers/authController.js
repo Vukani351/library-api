@@ -36,7 +36,7 @@ exports.googleLogin = async (req, reply) => {
       message: 'Login successful',
       user: {
         id: user.id,
-        name: user.name,
+        username: user.name,
         email: user.email,
         picture: user.picture,
         token: reply.jwtSign({ userId: user.id }, { expiresIn: '1h' }),

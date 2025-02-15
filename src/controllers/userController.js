@@ -59,7 +59,7 @@ exports.login = async (request, reply) => {
     const token = await reply.jwtSign({ id: user.id, email: user.email });
     reply.code(200).send({ message: 'Login successful', data: {
       id: user.id,
-      name: user.name,
+      username: user.name,
       email: user.email,
       picture: user.picture,
       token: token,
