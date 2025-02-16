@@ -64,7 +64,6 @@ exports.editBook = async (request, reply) => {
 exports.getBookById = async (request, reply) => {
   try {
     const { id } = request.params;
-    console.log("book id: ", id);  
     const book = await Book.findOne({
       where: { id: id }
     });
