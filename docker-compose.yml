@@ -32,20 +32,20 @@ services:
   #   depends_on:
   #     - db
 
-  # nodeapp:
-  #   build:
-  #     context: ./  # Ensure this path is correct
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     DB_HOST: db
-  #     DB_PORT: 3306
-  #   networks:
-  #     - internalnet
-  #   depends_on:
-  #     - db
+  nodeapp:
+    build:
+      context: ./  # Ensure this path is correct
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+    networks:
+      - internalnet
+    depends_on:
+      - db
 
 networks:
   internalnet:
