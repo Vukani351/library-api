@@ -43,8 +43,7 @@ exports.editBook = async (request, reply) => {
       return reply.code(404).send({ error: 'This book does not exist.' });
     }
     
-    // console.log("Book Created:\n", previous_book_data);
-    const book = await Book.update(
+    await Book.update(
       {
         title: title, author: author, library_id: library_id, owner_id: owner_id, description: description
       },
@@ -54,7 +53,6 @@ exports.editBook = async (request, reply) => {
       }
     });
 
-    console.log("Book Edited:\n", book);
     reply.code(201).send(await Book.findByPk(id));
   } catch (error) {
     reply.code(500).send({ error: error.message });

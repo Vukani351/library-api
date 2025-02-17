@@ -1,4 +1,5 @@
 const Library = require('../models/libraryModel');
+const User = require('../models/userModel');
 
 exports.createLibrary = async (request, reply) => {
   try {
@@ -25,8 +26,39 @@ exports.getUserLibrary = async (request, reply) => {
     // need to check if the params are there and if user is correct one 
     const { name, id } = request.params;
     const libraries = await Library.findOne({ where: { name: name, user_id: id } });
-    console.log("library: ", libraries);;
     reply.code(200).send(libraries);
+  } catch (error) {
+    reply.code(500).send({ error: error.message });
+  }
+};
+
+exports.editLibrary = async (request, reply) => {
+  try {
+    const userId = request.user.id;
+    const { id, name, description, user_id } = request.body;
+    const user = await User.findByPk(userId);
+    const body_defined_user = await User.findByPk(user_id);
+    if (!(user && body_defined_user)) {
+      return reply.code(404).send({ error: 'User not found for this library.' });
+    }
+
+    const previous_library_data = await Library.findByPk(id);
+    
+    if (!previous_library_data) {
+      return reply.code(404).send({ error: 'This library does not exist.' });
+    }
+    
+    await Library.update(
+      {
+        name: name, description: description, user_id: user_id
+      },
+      {
+        where: { 
+          id: previous_library_data.id, user_id: user_id
+      }
+    });
+
+    reply.code(201).send(await Library.findByPk(id));
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }

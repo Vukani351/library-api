@@ -25,7 +25,6 @@ exports.register = async (request, reply) => {
 
   try {
     const { name, email, password } = request.body;
-    console.warn("user data: ", name, email, password);
     const user = await User.create({ 
       name: name, 
       email: email, 

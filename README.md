@@ -143,6 +143,7 @@ personal-library/
 
 ## Todo:
 
+- we need user groups, people can either be owners or readers from a library. this means we might need a user group that is allowed to access a certain library[] 
 - Remove express & use fastify for a change.
 - Add a reply decorator for standardizing responses.
 - Create and test the docker file for running the application build.

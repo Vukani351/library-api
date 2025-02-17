@@ -32,8 +32,6 @@ fastify.register(cors, {
 // Add JWT authentication decorator
 fastify.decorate('authenticate', async (request, reply) => {
   try {
-    console.log("request", request.authorization);
-    
     await request.jwtVerify();
   } catch (err) {
     reply.code(401).send({ error: 'Unauthorized' });

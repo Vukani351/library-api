@@ -6,7 +6,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 exports.googleLogin = async (req, reply) => {
   const { token } = req.body;
 
-  console.log('JWT token:', token);
   try {
     // Verify the Google token
     const ticket = await client.verifyIdToken({
@@ -16,7 +15,6 @@ exports.googleLogin = async (req, reply) => {
 
     const payload = ticket.getPayload();
     const { sub, email, name, picture } = payload;
-    console.log('JWT token:', payload);
 
     // Check if the user exists in the database
     let user = await User.findOne({ where: { googleId: sub } });
