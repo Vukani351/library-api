@@ -24,8 +24,8 @@ exports.getLibraries = async (request, reply) => {
 exports.getUserLibrary = async (request, reply) => {
   try {
     // need to check if the params are there and if user is correct one 
-    const { name, id } = request.params;
-    const libraries = await Library.findOne({ where: { name: name, user_id: id } });
+    const { id } = request.params;
+    const libraries = await Library.findOne({ where: { user_id: id } });
     reply.code(200).send(libraries);
   } catch (error) {
     reply.code(500).send({ error: error.message });
