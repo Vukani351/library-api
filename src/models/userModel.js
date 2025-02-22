@@ -20,6 +20,11 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  status: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    defaultValue: 'active',
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

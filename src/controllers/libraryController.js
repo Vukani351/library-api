@@ -3,18 +3,34 @@ const User = require('../models/userModel');
 
 exports.createLibrary = async (request, reply) => {
   try {
-    const { name, userId } = request.body;
-    const library = await Library.create({ name: name, user_id: userId });
-    reply.code(201).send(library);
+    // Extracted from JWT
+    const { id, email} = request.user;
+    // Find user by email
+    const user = await User.findOne({ where: { id: id, email: email } });
+    
+    if (!user) {
+      return reply.code(404).send({ error: 'User not found' });
+    }
+
+    // generate the library hash:
+
+
+
+
+
+    
+    const { name, description  } = request.body;
+    const library = await Library.create({ name: name, description:description, user_id: id });
+    reply.code(200).send({library: library});
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
 };
 
-exports.getLibraries = async (request, reply) => {
+exports.getUserAccessLibraries = async (request, reply) => {
+  // change this to be getting all libraries user is allowed to see.
   try {
     const libraries = await Library.findAll();
-    console.log(libraries.every(libraries => libraries instanceof Library))
     reply.code(200).send(libraries);
   } catch (error) {
     reply.code(500).send({ error: error.message });
@@ -63,3 +79,22 @@ exports.editLibrary = async (request, reply) => {
     reply.code(500).send({ error: error.message });
   }
 };
+
+exports.requestLibraryAccess = async (request, reply) => {
+    try {
+        // Extracted from JWT
+      const { id, email} = request.user;
+      // Find user by email
+      const user = await User.findOne({ where: { id: id, email: email } });
+      
+      if (!user) {
+        return reply.code(404).send({ error: 'User not found.' });
+      }
+
+      const { hash  } = request.body;
+      const libraries = await Library.findOne({where: { hash: hash }});
+      reply.code(200).send(libraries);
+    } catch (error) {
+      reply.code(500).send({ error: error.message });
+    }
+}
