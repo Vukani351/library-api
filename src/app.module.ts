@@ -1,22 +1,32 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/require-await */
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { BookModule } from './book/book.module';
 import { LibraryModule } from './library/library.module';
 import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    SequelizeModule.forRoot({
-      dialect: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'password',
-      database: 'library_db',
-      autoLoadModels: true,
-      synchronize: true, // Auto-sync models (turn off in production)
+    ConfigModule.forRoot({
+      isGlobal: true, // Make the ConfigModule available globally
+    }),
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        dialect: configService.get<string>('DB_DIALECT') as any,
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        autoLoadModels: true,
+        synchronize: true, // Auto-sync models (turn off in production)
+      }),
+      inject: [ConfigService],
     }),
     BookModule,
     LibraryModule,
