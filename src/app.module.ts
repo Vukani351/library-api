@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BookModule } from './book/book.module';
+import { LibraryModule } from './library/library.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BookModule } from './book/book.module';
       synchronize: true, // Auto-sync models (turn off in production)
     }),
     BookModule,
+    LibraryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,13 +2,6 @@ import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User> {
-  //   @Column({
-  //     type: DataType.INTEGER,
-  //     autoIncrement: true,
-  //     primaryKey: true,
-  //   })
-  //   id: number;
-
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
@@ -34,16 +27,4 @@ export class User extends Model<User> {
     defaultValue: 'active',
   })
   status: string;
-
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW,
-  })
-  created_at: Date;
-
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW,
-  })
-  updated_at: Date;
 }

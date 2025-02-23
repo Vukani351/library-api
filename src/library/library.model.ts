@@ -9,13 +9,6 @@ import { User } from '../user/user.model';
 
 @Table({ tableName: 'library' })
 export class Library extends Model<Library> {
-  //   @Column({
-  //     type: DataType.INTEGER,
-  //     autoIncrement: true,
-  //     primaryKey: true,
-  //   })
-  //   id: number;
-
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
@@ -50,16 +43,4 @@ export class Library extends Model<Library> {
     onDelete: 'CASCADE',
   })
   user_id: number;
-
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW,
-  })
-  created_at: Date;
-
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW,
-  })
-  updated_at: Date;
 }
