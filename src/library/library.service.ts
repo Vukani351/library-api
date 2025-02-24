@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Library } from './library.model';
+import { Library } from '../models/library.model';
 
 @Injectable()
 export class LibraryService {

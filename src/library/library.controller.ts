@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { LibraryService } from './library.service';
-import { Library } from './library.model';
+import { Library } from '../models/library.model';
 
 @Controller('library')
 export class LibraryController {

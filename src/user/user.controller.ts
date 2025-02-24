@@ -1,22 +1,18 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './user.model';
+import { User } from '../models/user.model';
 
+type LoginCredentials = {
+  email: string;
+  password: string;
+};
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('register')
   create(@Body() user: Partial<User>) {
-    return this.userService.create(user);
+    return this.userService.register(user);
   }
 
   @Get()
@@ -24,18 +20,18 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Post('login')
+  findOne(@Body() { email, password }: Partial<LoginCredentials>) {
+    return this.userService.login(email!, password!);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateUser: Partial<User>) {
-    return this.userService.update(+id, updateUser);
-  }
+  // @Put(':id')
+  // update(@Param('id') id: string, @Body() updateUser: Partial<User>) {
+  //   return this.userService.update(+id, updateUser);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.userService.remove(+id);
+  // }
 }

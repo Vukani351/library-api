@@ -6,8 +6,8 @@ import {
   DataType,
   ForeignKey,
 } from 'sequelize-typescript';
-import { User } from '../user/user.model';
-import { Library } from '../library/library.model';
+import { User } from './user.model';
+import { Library } from './library.model';
 
 @Table({ tableName: 'book' })
 export class Book extends Model<Book> {
