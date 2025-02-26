@@ -16,7 +16,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() library: Partial<Library>) {
     return this.libraryService.create(library);
   }
@@ -42,4 +42,25 @@ export class LibraryController {
   remove(@Param('id') id: string) {
     return this.libraryService.remove(+id);
   }
+
+  @UseGuards(AuthGuard)
+  @Post(':id/request')
+  async requestAccess(
+    @Param('id') libraryId: number,
+    @Body('userId') userId: number,
+  ) {
+    return this.libraryService.requestAccess(userId, libraryId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('access/:requestId/approve')
+  async approveAccess(@Param('requestId') requestId: number) {
+    return this.libraryService.approveAccess(requestId);
+  }
+
+  // @UseGuards(AuthGuard)
+  // @Get('user/:userId')
+  // async getUserLibraries(@Param('userId') userId: number) {
+  //   return this.libraryService.getUserLibraries(userId);
+  // }
 }

@@ -14,6 +14,10 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async getAllUsers(): Promise<User[]> {
+    return this.userModel.findAll();
+  }
+
   async findAll(): Promise<User[]> {
     return this.userModel.findAll();
   }
@@ -69,7 +73,6 @@ export class UserService {
       throw new InternalServerErrorException('Failed to update user');
     }
   }
-  /* */
 
   async getProfile(id: number): Promise<User | null> {
     return await this.userModel.findByPk(id);

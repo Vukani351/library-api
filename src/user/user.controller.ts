@@ -44,4 +44,8 @@ export class UserController {
   update(@Param('id') id: string, @Body() updateUser: Partial<User>) {
     return this.userService.updateUser(Number(id), updateUser);
   }
+  @Get()
+  getAllUsers() {
+    return this.userService.getAllUsers();
+  }
 }
