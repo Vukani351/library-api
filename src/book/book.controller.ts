@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('book')
 export class BookController {
@@ -31,6 +40,7 @@ export class BookController {
     });
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   async update(
     @Param('id') id: number,

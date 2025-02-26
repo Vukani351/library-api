@@ -6,9 +6,11 @@ import {
   Param,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { LibraryService } from './library.service';
 import { Library } from '../models/library.model';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('library')
 export class LibraryController {
@@ -29,11 +31,13 @@ export class LibraryController {
     return this.libraryService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateLibrary: Partial<Library>) {
     return this.libraryService.update(+id, updateLibrary);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.libraryService.remove(+id);
