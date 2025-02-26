@@ -1,6 +1,17 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Param,
+  Put,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '../models/user.model';
+import { AuthGuard } from '../auth/auth.guard';
 
 type LoginCredentials = {
   email: string;
@@ -10,28 +21,27 @@ type LoginCredentials = {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @HttpCode(HttpStatus.OK)
   @Post('register')
-  create(@Body() user: Partial<User>) {
+  SignUp(@Body() user: Partial<User>) {
     return this.userService.register(user);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  getProfile(@Param('id') id: number) {
+    return this.userService.getProfile(id);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('login')
-  findOne(@Body() { email, password }: Partial<LoginCredentials>) {
+  SignIn(@Body() { email, password }: Partial<LoginCredentials>) {
     return this.userService.login(email!, password!);
   }
 
-  // @Put(':id')
-  // update(@Param('id') id: string, @Body() updateUser: Partial<User>) {
-  //   return this.userService.update(+id, updateUser);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.userService.remove(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Put(':id') // add prefix 'update' to the route
+  update(@Param('id') id: string, @Body() updateUser: Partial<User>) {
+    return this.userService.updateUser(Number(id), updateUser);
+  }
 }
