@@ -48,4 +48,26 @@ export class BookController {
   ): Promise<Book> {
     return this.bookService.update(id, updateData);
   }
+
+  @UseGuards(AuthGuard)
+  @Post(':bookId/request-borrow')
+  async requestBorrow(
+    @Param('bookId') bookId: number,
+    @Body('borrowerId') borrowerId: number,
+    @Body('returnByDate') returnByDate: Date,
+  ) {
+    return this.bookService.requestBorrow(bookId, borrowerId, returnByDate);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('borrow/:requestId/approve')
+  async approveBorrow(@Param('requestId') requestId: number) {
+    return this.bookService.approveBorrow(requestId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('borrow-requests/:ownerId')
+  async getBorrowRequests(@Param('ownerId') ownerId: number) {
+    return this.bookService.getBorrowRequests(ownerId);
+  }
 }

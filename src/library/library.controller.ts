@@ -11,7 +11,6 @@ import {
 import { LibraryService } from './library.service';
 import { Library } from '../models/library.model';
 import { AuthGuard } from 'src/auth/auth.guard';
-
 @Controller('library')
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
@@ -45,22 +44,31 @@ export class LibraryController {
 
   @UseGuards(AuthGuard)
   @Post(':id/request')
-  async requestAccess(
-    @Param('id') libraryId: number,
-    @Body('userId') userId: number,
+  requestAccess(
+    @Body() { userId, libraryId }: { userId: number; libraryId: number },
   ) {
     return this.libraryService.requestAccess(userId, libraryId);
   }
 
-  @UseGuards(AuthGuard)
-  @Post('access/:requestId/approve')
+  // @UseGuards(AuthGuard)
+  @Get('/:userId/:libraryId/requests')
+  getLibraryRequests(
+    @Param('userId') userId: number,
+    @Param('libraryId') libraryId: number,
+  ): any {
+    return this.libraryService.getUserLibraries(userId, libraryId); // might not need to use this to get the id but token.
+  }
+
+  // @UseGuards(AuthGuard)
+  @Put('access/:requestId/approve')
   async approveAccess(@Param('requestId') requestId: number) {
     return this.libraryService.approveAccess(requestId);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Get('user/:userId')
-  // async getUserLibraries(@Param('userId') userId: number) {
-  //   return this.libraryService.getUserLibraries(userId);
-  // }
+  /*
+  @UseGuards(AuthGuard)
+  @Get('user/:userId')
+  async getUserLibraries(@Param('userId') userId: number) {
+    return this.libraryService.getUserLibraries(userId);
+  } */
 }

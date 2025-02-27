@@ -21,6 +21,10 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
+      /*
+       * TODO:
+       * Use this way to actually get the user Id from the token each time. make that a public function
+       */
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });

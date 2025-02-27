@@ -39,7 +39,6 @@ export class LibraryService {
 
   async requestAccess(userId: number, libraryId: number) {
     // Check if the library exists
-    console.log('request: ', userId, libraryId);
     const library = await this.libraryModel.findByPk(libraryId);
     // return { DATA: { Libr: library?.toJSON(), MSSSG: 'TESTING' } };
     if (!library) {
@@ -67,29 +66,35 @@ export class LibraryService {
   async approveAccess(requestId: number) {
     const accessRequest = await this.libraryAccessModel.findByPk(requestId);
     if (!accessRequest) {
-      throw new NotFoundException('Access request not found');
+      throw new NotFoundException('Library Request Access does not exist.');
     }
 
-    accessRequest.status = 'approved';
-    return accessRequest.save();
+    return this.libraryAccessModel.update(
+      { status: 'approved' },
+      { where: { id: requestId, approved_at: Date.now() } },
+    );
   }
 
-  async getUserLibraries(userId: number) {
-    // Fetch all libraries user owns or has approved access to
-    // const libraries = await this.libraryModel.findAll({
-    //   where: { user_id: userId },
-    // });
-
-    const approvedLibraries = await this.libraryAccessModel.findAll({
-      where: { user_id: userId, status: 'approved' },
-      include: [{ model: Library }],
+  /*
+    const payload = await this.jwtService.verifyAsync(token, {
+      secret: jwtConstants.secret,
     });
+  */
 
-    return {
-      data: {
-        libraries: approvedLibraries,
-      },
-    };
+  async getUserLibraries(userId: number, libraryId: number) {
+    /*
+     * TOOD:
+     * 1. Get all libraries that have requests.
+     * 2. Get all the user names and emails. for display.
+     */
+    try {
+      const approvedLibraries = await this.libraryAccessModel.findAll({
+        where: { user_id: userId, library_id: libraryId },
+      });
+      return approvedLibraries;
+    } catch (error) {
+      return new Error('Sorry there is an issue, try again.', error);
+    }
   }
   /**/
 }

@@ -43,6 +43,33 @@ CREATE TABLE IF NOT EXISTS book (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS library_access (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  library_id INT NOT NULL,
+  user_id INT NOT NULL,
+  owner_id INT NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  approved_at TIMESTAMP NULL,
+  FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS book_request (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  book_id INT NOT NULL,
+  borrower_id INT NOT NULL,
+  owner_id INT NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  approved_at TIMESTAMP,
+  return_by_date TIMESTAMP,
+  FOREIGN KEY (book_id) REFERENCES book(id) ON DELETE CASCADE,
+  FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
 -- Insert a new user
 INSERT INTO user (name, email, password, status)
 VALUES ('Nash Bell', 'nash4253@gmail.com', 'password123', "active");
