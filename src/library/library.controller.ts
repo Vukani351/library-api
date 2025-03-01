@@ -56,7 +56,7 @@ export class LibraryController {
     @Param('userId') userId: number,
     @Param('libraryId') libraryId: number,
   ): any {
-    return this.libraryService.getUserLibraries(userId, libraryId); // might not need to use this to get the id but token.
+    return this.libraryService.getUserLibrariesRequests(userId, libraryId); // might not need to use this to get the id but token.
   }
 
   // @UseGuards(AuthGuard)
@@ -64,11 +64,4 @@ export class LibraryController {
   async approveAccess(@Param('requestId') requestId: number) {
     return this.libraryService.approveAccess(requestId);
   }
-
-  /*
-  @UseGuards(AuthGuard)
-  @Get('user/:userId')
-  async getUserLibraries(@Param('userId') userId: number) {
-    return this.libraryService.getUserLibraries(userId);
-  } */
 }

@@ -6,10 +6,11 @@ import { Library } from '../models/library.model';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
 import { LibraryAccess } from 'src/models/library-access.model';
+import { User } from '../models/user.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Library, LibraryAccess]),
+    SequelizeModule.forFeature([Library, LibraryAccess, User]),
     JwtModule.register({
       secret: jwtConstants.secret,
     }),

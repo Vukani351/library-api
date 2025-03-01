@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Library } from '../models/library.model';
 import { LibraryAccess } from 'src/models/library-access.model';
+import { User } from 'src/models/user.model';
 
 @Injectable()
 export class LibraryService {
@@ -9,6 +10,7 @@ export class LibraryService {
     @InjectModel(Library) private libraryModel: typeof Library,
     @InjectModel(LibraryAccess)
     private libraryAccessModel: typeof LibraryAccess,
+    @InjectModel(User) private UserModel: typeof User,
   ) {}
 
   async findAll(): Promise<Library[]> {
@@ -62,7 +64,6 @@ export class LibraryService {
     } as LibraryAccess);
   }
 
-  /**/
   async approveAccess(requestId: number) {
     const accessRequest = await this.libraryAccessModel.findByPk(requestId);
     if (!accessRequest) {
@@ -81,20 +82,34 @@ export class LibraryService {
     });
   */
 
-  async getUserLibraries(userId: number, libraryId: number) {
-    /*
-     * TOOD:
-     * 1. Get all libraries that have requests.
-     * 2. Get all the user names and emails. for display.
-     */
+  async getUserLibrariesRequests(userId: number, libraryId: number) {
     try {
-      const approvedLibraries = await this.libraryAccessModel.findAll({
+      const requestedLibraries = await this.libraryAccessModel.findAll({
         where: { user_id: userId, library_id: libraryId },
       });
-      return approvedLibraries;
+
+      const library_requests = await Promise.all(
+        requestedLibraries.map(async (library) => {
+          const libJson = library.toJSON();
+          const userData = (await this.getUserById(libJson.user_id)).toJSON();
+          const { name, email } = userData;
+          return { ...libJson, user_data: { name, email } };
+        }),
+      );
+
+      return library_requests;
     } catch (error) {
-      return new Error('Sorry there is an issue, try again.', error);
+      throw new Error('Sorry, there is an issue. Please try again.');
     }
   }
+
+  async getUserById(id: number): Promise<User> {
+    const user = (await this.UserModel.findByPk(id)) as User;
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
+  }
+
   /**/
 }

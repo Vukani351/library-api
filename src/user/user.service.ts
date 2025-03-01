@@ -18,10 +18,6 @@ export class UserService {
     return this.userModel.findAll();
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
-  }
-
   async login(email: string, password: string): Promise<{ data: any }> {
     const user = await this.userModel.findOne({
       where: { email: email, password: password },
