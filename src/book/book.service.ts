@@ -16,8 +16,13 @@ export class BookService {
     private bookRequestModel: typeof BookRequest,
   ) {}
 
-  async findAll(): Promise<Book[]> {
-    return this.bookModel.findAll();
+  async libraryCollection(libraryId: number): Promise<Book[]> {
+    try {
+      const books = await this.bookModel.findAll({ where: { library_id: libraryId } });
+      return books || [];
+    } catch (error) {
+      throw new InternalServerErrorException('Could not fetch library collection');
+    }
   }
 
   async findOne(id: number): Promise<Book> {
