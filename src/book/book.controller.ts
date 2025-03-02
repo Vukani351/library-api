@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Controller,
   Get,
@@ -68,6 +69,17 @@ export class BookController {
   @UseGuards(AuthGuard)
   @Get('borrow-requests/:ownerId')
   async getBorrowRequests(@Param('ownerId') ownerId: number) {
+    /* TODO:
+     * fix this to return the borrow requests
+     * remove this comment so that we have this errror fixed for the entire application
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.bookService.getBorrowRequests(ownerId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('requests/:bookId')
+  async getLibraryBorrowRequests(@Param('bookId') bookId: number) {
+    return this.bookService.getLibraryBorrowRequests(bookId);
   }
 }

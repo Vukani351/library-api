@@ -98,6 +98,7 @@ export class LibraryService {
       );
 
       return library_requests;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw new Error('Sorry, there is an issue. Please try again.');
     }

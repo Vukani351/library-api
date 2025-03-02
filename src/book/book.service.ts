@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Book } from '../models/book.model';
@@ -38,11 +39,16 @@ export class BookService {
 
   async requestBorrow(bookId: number, borrowerId: number, returnByDate: Date) {
     // Check if book exists
-    const book = await this.bookModel.findByPk(bookId);
+    const bookRecord = await this.bookModel.findByPk(bookId);
+    if (!bookRecord) {
+      throw new NotFoundException('Book not found');
+    }
+    const book = bookRecord.toJSON();
     if (!book) {
       throw new NotFoundException('Book not found');
     }
-    if (book.status !== 'available') {
+    if (book.is_private) {
+      console.log('BOOK', !book.is_private, bookId, borrowerId);
       throw new BadRequestException('Book is not available for borrowing');
     }
 
@@ -89,9 +95,42 @@ export class BookService {
   }
 
   async getBorrowRequests(ownerId: number) {
-    return this.bookRequestModel.findAll({
-      where: { owner_id: ownerId, status: 'pending' },
-      include: [Book],
-    });
+    try {
+      const requests = await this.bookRequestModel.findAll({
+        where: { owner_id: ownerId, status: 'pending' },
+        include: [Book],
+      });
+      if (!requests || requests.length === 0) {
+        throw new NotFoundException(
+          'No pending borrow requests found or the owner id is incorrect',
+        );
+      }
+      return requests;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // throw new InternalServerErrorException(
+      //   'An error occurred while retrieving borrow requests',
+      // );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return error;
+    }
+  }
+  async getLibraryBorrowRequests(bookId: number) {
+    try {
+      const book_request = await BookRequest.findAll({
+        where: { book_id: bookId },
+      });
+      if (!book_request || book_request.length === 0) {
+        throw new NotFoundException(
+          'No borrow requests found for this library',
+        );
+      }
+      return book_request;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'An error occurred while retrieving borrow requests for the library',
+      );
+    }
   }
 }
