@@ -37,9 +37,17 @@ export class BookService {
     return this.bookModel.create(book as Book);
   }
 
-  async update(id: number, updateData: Partial<Book>): Promise<Book> {
-    const book = await this.findOne(id);
-    return book.update(updateData);
+  async updateBook(id: number, updateData: Partial<Book>): Promise<Book> {
+    try {
+      const book = await this.findOne(id); // This will throw NotFoundException if no book found
+      const updatedBook = await book.update(updateData);
+      return updatedBook;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to update book with id ${id}`);
+    }
   }
 
   async requestBorrow(bookId: number, borrowerId: number, returnByDate: Date) {
@@ -136,6 +144,18 @@ export class BookService {
       throw new InternalServerErrorException(
         'An error occurred while retrieving borrow requests for the library',
       );
+    }
+  }
+
+  async getById(bookId: number): Promise<Book> {
+    try {
+      const book = await this.bookModel.findByPk(bookId);
+      if (!book) {
+        throw new NotFoundException(`Book with id ${bookId} not found`);
+      }
+      return book;
+    } catch (error) {
+      throw new InternalServerErrorException('Error while fetching book details');
     }
   }
 }

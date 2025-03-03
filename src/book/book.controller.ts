@@ -16,7 +16,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
-  @Get(':libraryId')
+  @Get('library/:libraryId')
   async getAllLibraryBooks(@Param('libraryId') id: number): Promise<Book[]> {
     return this.bookService.libraryCollection(id);
   }
@@ -47,7 +47,7 @@ export class BookController {
     @Param('id') id: number,
     @Body() updateData: Partial<Book>,
   ): Promise<Book> {
-    return this.bookService.update(id, updateData);
+    return this.bookService.updateBook(id, updateData);
   }
 
   @UseGuards(AuthGuard)
@@ -81,5 +81,11 @@ export class BookController {
   @Get('requests/:bookId')
   async getLibraryBorrowRequests(@Param('bookId') bookId: number) {
     return this.bookService.getLibraryBorrowRequests(bookId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':bookId')
+  async getBookById(@Param('bookId') bookId: number): Promise<Book> {
+    return this.bookService.getById(bookId);
   }
 }
