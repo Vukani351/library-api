@@ -6,10 +6,11 @@ import { BookService } from './book.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
 import { BookRequest } from 'src/models/book-request.model';
+import { LibraryAccess } from 'src/models/library-access.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Book, BookRequest]),
+    SequelizeModule.forFeature([Book, BookRequest, LibraryAccess]),
     JwtModule.register({
       secret: jwtConstants.secret,
     }),

@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Book } from '../models/book.model';
+import { jwtConstants } from 'src/constants/jwtConstants';
 import { BookRequest } from 'src/models/book-request.model';
+import { JwtService } from '@nestjs/jwt';
+import { LibraryAccess } from 'src/models/library-access.model';
 
 @Injectable()
 export class BookService {
@@ -14,10 +17,36 @@ export class BookService {
     @InjectModel(Book) private bookModel: typeof Book,
     @InjectModel(BookRequest)
     private bookRequestModel: typeof BookRequest,
+    @InjectModel(LibraryAccess)
+      private libraryAccessModel: typeof LibraryAccess,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async libraryCollection(libraryId: number): Promise<Book[]> {
+  async libraryCollection(libraryId: number, req: any): Promise<Book[]> {
     try {
+      const authHeader = req.headers.authorization;
+      const token = authHeader && authHeader.split(' ')[1];
+      if (!token) {
+        throw new Error('Token not found');
+      }
+      
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: jwtConstants.secret,
+      });
+
+      const userId = payload.id;
+      const access = await this.libraryAccessModel.findAll({
+        where: {
+          library_id: libraryId,
+          user_id: userId,
+          status: 'approved',
+        },
+      });
+
+      if(access.length === 0) {
+        throw new BadRequestException('You do not have access to this library');
+      }
+
       const books = await this.bookModel.findAll({ where: { library_id: libraryId } });
       return books || [];
     } catch (error) {

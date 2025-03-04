@@ -11,6 +11,7 @@ import {
 import { LibraryService } from './library.service';
 import { Library } from '../models/library.model';
 import { AuthGuard } from 'src/auth/auth.guard';
+
 @Controller('library')
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
@@ -27,7 +28,7 @@ export class LibraryController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.libraryService.findOne(+id);
+    return this.libraryService.getLibrary(+id);
   }
 
   @UseGuards(AuthGuard)
@@ -50,7 +51,7 @@ export class LibraryController {
     return this.libraryService.requestAccess(userId, libraryId);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/:userId/:libraryId/requests')
   getLibraryRequests(
     @Param('userId') userId: number,
@@ -59,8 +60,8 @@ export class LibraryController {
     return this.libraryService.getUserLibrariesRequests(userId, libraryId); // might not need to use this to get the id but token.
   }
 
-  // @UseGuards(AuthGuard)
-  @Put('access/:requestId/approve')
+  @UseGuards(AuthGuard)
+  @Put(':requestId/approve')
   async approveAccess(@Param('requestId') requestId: number) {
     return this.libraryService.approveAccess(requestId);
   }

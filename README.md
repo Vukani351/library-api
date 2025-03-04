@@ -86,9 +86,11 @@ Here are some related projects:
 
 ---
 
-## Documentation
+## Dev Tools
 
-- [Project Documentation](https://linktodocumentation)
+- [mysql Workbench](https://www.mysql.com/products/workbench/)
+- [Install My SQL](https://dev.mysql.com/downloads/installer/)
+- [Post Man](https://www.postman.com/)
 
 ---
 
@@ -100,7 +102,6 @@ Here are some related projects:
 - [Fastify-JWT Plugin](https://github.com/fastify/fastify-jwt)  
 - [Fastify-Swagger Plugin](https://github.com/fastify/fastify-swagger)  
 - [DayJS Library](https://github.com/iamkun/dayjs)
-
 ---
 
 ## Project Structure

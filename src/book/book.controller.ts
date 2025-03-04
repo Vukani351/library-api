@@ -7,6 +7,7 @@ import {
   Param,
   Put,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
@@ -16,16 +17,19 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
+  @UseGuards(AuthGuard)
   @Get('library/:libraryId')
-  async getAllLibraryBooks(@Param('libraryId') id: number): Promise<Book[]> {
-    return this.bookService.libraryCollection(id);
+  async getAllLibraryBooks(@Param('libraryId') id: number, @Req() req: any): Promise<Book[]> {
+    return this.bookService.libraryCollection(id, req);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Book> {
     return this.bookService.findOne(id);
   }
 
+  @UseGuards(AuthGuard)
   @Post('/new')
   async create(@Body() bookData: Partial<Book>): Promise<Book> {
     return this.bookService.create({

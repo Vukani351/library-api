@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Library } from '../models/library.model';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { User } from 'src/models/user.model';
-
 @Injectable()
 export class LibraryService {
   constructor(
@@ -17,12 +16,17 @@ export class LibraryService {
     return this.libraryModel.findAll();
   }
 
-  async findOne(id: number): Promise<Library> {
-    const library = await this.libraryModel.findByPk(id);
-    if (!library) {
-      throw new NotFoundException(`Library with id ${id} not found`);
+  async getLibrary(id: number): Promise<Library> {
+    try {
+      // Find the library
+      const library = await this.libraryModel.findByPk(id);
+      if (!library) {
+        throw new NotFoundException(`Library with id ${id} not found`);
+      }
+      return library;
+    } catch (error) {
+      throw new Error('Sorry, there is an issue. Please try again.');
     }
-    return library;
   }
 
   async create(library: Partial<Library>): Promise<Library> {
@@ -30,19 +34,24 @@ export class LibraryService {
   }
 
   async update(id: number, updateData: Partial<Library>): Promise<Library> {
-    const library = await this.findOne(id);
+    const library = await this.libraryModel.findByPk(id);
+    if (!library) {
+      throw new NotFoundException(`Library with id ${id} not found`);
+    }
     return library.update(updateData);
   }
 
   async remove(id: number): Promise<void> {
-    const library = await this.findOne(id);
+    const library = await this.libraryModel.findByPk(id);
+    if (!library) {
+      throw new NotFoundException(`Library with id ${id} not found`);
+    }
     await library.destroy();
   }
 
   async requestAccess(userId: number, libraryId: number) {
     // Check if the library exists
     const library = await this.libraryModel.findByPk(libraryId);
-    // return { DATA: { Libr: library?.toJSON(), MSSSG: 'TESTING' } };
     if (!library) {
       throw new NotFoundException('Library not found');
     }
@@ -70,13 +79,16 @@ export class LibraryService {
       throw new NotFoundException('Library Request Access does not exist.');
     }
 
-    return this.libraryAccessModel.update(
-      { status: 'approved' },
-      { where: { id: requestId, approved_at: Date.now() } },
+    await this.libraryAccessModel.update(
+      { status: 'approved', approved_at: new Date() },
+      { where: { id: requestId } },
     );
+    return this.libraryAccessModel.findByPk(requestId);
   }
 
   /*
+    * TODO:
+    * USE THIS GUY TO GET THE USER ID FROM THE TOKEN
     const payload = await this.jwtService.verifyAsync(token, {
       secret: jwtConstants.secret,
     });
@@ -111,6 +123,4 @@ export class LibraryService {
     }
     return user;
   }
-
-  /**/
 }
