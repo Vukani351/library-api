@@ -10,6 +10,7 @@ import { jwtConstants } from 'src/constants/jwtConstants';
 import { BookRequest } from 'src/models/book-request.model';
 import { JwtService } from '@nestjs/jwt';
 import { LibraryAccess } from 'src/models/library-access.model';
+import { Library } from 'src/models/library.model';
 
 @Injectable()
 export class BookService {
@@ -18,7 +19,9 @@ export class BookService {
     @InjectModel(BookRequest)
     private bookRequestModel: typeof BookRequest,
     @InjectModel(LibraryAccess)
-      private libraryAccessModel: typeof LibraryAccess,
+    private libraryAccessModel: typeof LibraryAccess,
+    @InjectModel(Library)
+      private libraryModel: typeof Library,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -35,6 +38,13 @@ export class BookService {
       });
 
       const userId = payload.id;
+
+      const library_owner = await this.libraryModel.findOne({
+        where: {
+          id: libraryId,
+          user_id: userId
+        },
+      });
       const access = await this.libraryAccessModel.findAll({
         where: {
           library_id: libraryId,
@@ -43,14 +53,14 @@ export class BookService {
         },
       });
 
-      if(access.length === 0) {
+      if (access.length === 0 && !(!!library_owner)) {
         throw new BadRequestException('You do not have access to this library');
       }
 
       const books = await this.bookModel.findAll({ where: { library_id: libraryId } });
       return books || [];
     } catch (error) {
-      throw new InternalServerErrorException('Could not fetch library collection');
+      throw new InternalServerErrorException('Could not fetch library collection', error);
     }
   }
 
