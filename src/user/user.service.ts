@@ -85,13 +85,12 @@ export class UserService {
     }
 }
 
-
-  async getProfile(id: number): Promise<Partial<User>> {
-    const user = (await this.userModel.findByPk(id))?.toJSON();
-    return {
-      id: user?.id,
-      name: user?.name || "",
-      email: user?.email || "",
-    };
-  }
+async getProfile(id: number): Promise<Partial<User>> {
+  const user = (await this.userModel.findByPk(id))?.toJSON();
+  return {
+    id: user?.id,
+    name: user?.name || "",
+    email: user?.email || "",
+  };
+}
 }
