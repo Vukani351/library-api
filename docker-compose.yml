@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    container_name: library-db
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    environment:
+      # MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: library_db
+      MYSQL_USER: nash4253
+      MYSQL_PASSWORD: rootpassword
+      # MYSQL_INITDB_ARGS: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - library-network
+
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-container
+    ports:
+      - "3000:3000"
+    environment:
+      DB_DIALECT: "mysql"
+      DB_HOST: "db"
+      DB_PORT: "3306"
+      DB_USERNAME: "nash4253"
+      DB_PASSWORD: "rootpassword"
+      DB_DATABASE: "library_db"
+      JWT_SECRET: "hard!to-guess"
+    depends_on:
+      - db
+    networks:
+      - library-network
+
+volumes:
+  mysql_data:
+
+networks:
+  library-network:
+    driver: bridge
