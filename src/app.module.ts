@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
@@ -16,16 +16,23 @@ import { UserModule } from './user/user.module';
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        dialect: configService.get<string>('DB_DIALECT') as any,
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        autoLoadModels: true,
-        synchronize: true, // Auto-sync models (turn off in production)
-      }),
+      useFactory: async (configService: ConfigService) => {
+        try {
+          return {
+            dialect: configService.get<string>('DB_DIALECT') as any,
+            host: configService.get<string>('DB_HOST'),
+            port: configService.get<number>('DB_PORT'),
+            username: configService.get<string>('DB_USERNAME'),
+            password: configService.get<string>('DB_PASSWORD'),
+            database: configService.get<string>('DB_DATABASE'),
+            autoLoadModels: true,
+            synchronize: true, // Auto-sync models (turn off in production)
+          };
+        } catch (error) {
+          Logger.error('Failed to connect to the database', error);
+          throw new Error('Failed to connect to the database');
+        }
+      },
       inject: [ConfigService],
     }),
     BookModule,
