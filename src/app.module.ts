@@ -29,7 +29,7 @@ import { UserModule } from './user/user.module';
             synchronize: true, // Auto-sync models (turn off in production)
           };
         } catch (error) {
-          Logger.error('Failed to connect to the database', error);
+          Logger.error('Failed to connect to the database');
           throw new Error('Failed to connect to the database');
         }
       },
