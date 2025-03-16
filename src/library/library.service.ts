@@ -16,12 +16,21 @@ export class LibraryService {
     return this.libraryModel.findAll();
   }
 
-  async getLibrary(id: number): Promise<Library> {
+  async getLibrary(userId: number): Promise<Library> {
     try {
-      // Find the library
-      const library = await this.libraryModel.findByPk(id);
+      /* TODO:
+        * Find a library using user id.
+        * Check if the library exists.
+        * If it does not exist, create one.
+        * Return the library list when there is more than one.
+        * User will have to pick which one from a drop down.
+      */
+      const library = await this.libraryModel.findOne({
+        where: { user_id: userId },
+      });
       if (!library) {
-        throw new NotFoundException(`Library with id ${id} not found`);
+        this.create({ user_id: userId, name: 'Home Library', description: 'My Home Library' });
+        throw new NotFoundException(`Library by the user ${userId} not found`);
       }
       return library;
     } catch (error) {

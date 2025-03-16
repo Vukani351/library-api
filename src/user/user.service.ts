@@ -31,7 +31,7 @@ export class UserService {
     const payload = { email: user.email, username: user.name, id: user.id };
     const token = this.jwtService.sign(payload);
 
-    return { ...payload, token: token };
+    return { token: token };
   }
 
   async register(user: Partial<User>): Promise<any> {
@@ -41,13 +41,7 @@ export class UserService {
       const payload = { email: parsed_user.email, username: parsed_user.name };
       const token = this.jwtService.sign(payload);
       return {
-        data: {
-          user: {
-            email: parsed_user.email,
-            name: parsed_user.name,
-          },
-          token: token,
-        },
+        token: token,
       };
     } catch (error) {
       console.log('error: \n', error);
