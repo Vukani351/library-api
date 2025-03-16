@@ -26,9 +26,10 @@ export class LibraryController {
     return this.libraryService.findAll();
   }
 
+  // @UseGuards(AuthGuard) - turn this on when its working & ensure that ui is conforming
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.libraryService.getLibrary(+id);
+  findOne(@Param('id') userId: string) {
+    return this.libraryService.getLibrary(+userId);
   }
 
   @UseGuards(AuthGuard)
