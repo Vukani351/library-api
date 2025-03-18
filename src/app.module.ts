@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/require-await */
 import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -12,7 +10,12 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Make the ConfigModule available globally
+      // Make the ConfigModule available globally
+      isGlobal: true,
+      // Conditionally load .env.development if NODE_ENV=development, else .env:
+      envFilePath: process.env.NODE_ENV === 'development' 
+        ? '.env.development'
+        : '.env',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],

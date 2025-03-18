@@ -19,17 +19,21 @@ export class LibraryService {
   async getLibrary(userId: number): Promise<Library> {
     try {
       /* TODO:
-        * Find a library using user id.
-        * Check if the library exists.
-        * If it does not exist, create one.
-        * Return the library list when there is more than one.
-        * User will have to pick which one from a drop down.
-      */
+       * Find a library using user id.
+       * Check if the library exists.
+       * If it does not exist, create one.
+       * Return the library list when there is more than one.
+       * User will have to pick which one from a drop down.
+       */
       const library = await this.libraryModel.findOne({
         where: { user_id: userId },
       });
       if (!library) {
-        this.create({ user_id: userId, name: 'Home Library', description: 'My Home Library' });
+        this.create({
+          user_id: userId,
+          name: 'Home Library',
+          description: 'My Home Library',
+        });
         throw new NotFoundException(`Library by the user ${userId} not found`);
       }
       return library;

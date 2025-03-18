@@ -21,7 +21,7 @@ export class BookService {
     @InjectModel(LibraryAccess)
     private libraryAccessModel: typeof LibraryAccess,
     @InjectModel(Library)
-      private libraryModel: typeof Library,
+    private libraryModel: typeof Library,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -32,7 +32,7 @@ export class BookService {
       if (!token) {
         throw new Error('Token not found');
       }
-      
+
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
@@ -42,7 +42,7 @@ export class BookService {
       const library_owner = await this.libraryModel.findOne({
         where: {
           id: libraryId,
-          user_id: userId
+          user_id: userId,
         },
       });
       const access = await this.libraryAccessModel.findAll({
@@ -53,14 +53,19 @@ export class BookService {
         },
       });
 
-      if (access.length === 0 && !(!!library_owner)) {
+      if (access.length === 0 && !!!library_owner) {
         throw new BadRequestException('You do not have access to this library');
       }
 
-      const books = await this.bookModel.findAll({ where: { library_id: libraryId } });
+      const books = await this.bookModel.findAll({
+        where: { library_id: libraryId },
+      });
       return books || [];
     } catch (error) {
-      throw new InternalServerErrorException('Could not fetch library collection', error);
+      throw new InternalServerErrorException(
+        'Could not fetch library collection',
+        error,
+      );
     }
   }
 
@@ -85,7 +90,9 @@ export class BookService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to update book with id ${id}`);
+      throw new InternalServerErrorException(
+        `Failed to update book with id ${id}`,
+      );
     }
   }
 
@@ -194,7 +201,9 @@ export class BookService {
       }
       return book;
     } catch (error) {
-      throw new InternalServerErrorException('Error while fetching book details');
+      throw new InternalServerErrorException(
+        'Error while fetching book details',
+      );
     }
   }
 }

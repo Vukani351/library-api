@@ -51,40 +51,42 @@ export class UserService {
 
   async updateUser(id: number, updateData: Partial<User>): Promise<User> {
     try {
-        // Filter out only the fields that are allowed to be updated
-        const allowedFields = ['name', 'email', 'status'];
-        const filteredData = Object.keys(updateData)
-            .filter((key) => allowedFields.includes(key) && updateData[key] !== undefined)
-            .reduce((obj, key) => {
-                obj[key] = updateData[key];
-                return obj;
-            }, {});
+      // Filter out only the fields that are allowed to be updated
+      const allowedFields = ['name', 'email', 'status'];
+      const filteredData = Object.keys(updateData)
+        .filter(
+          (key) => allowedFields.includes(key) && updateData[key] !== undefined,
+        )
+        .reduce((obj, key) => {
+          obj[key] = updateData[key];
+          return obj;
+        }, {});
 
-        if (Object.keys(filteredData).length === 0) {
-            throw new Error('No valid fields provided for update');
-        }
+      if (Object.keys(filteredData).length === 0) {
+        throw new Error('No valid fields provided for update');
+      }
 
-        // Use the update method to apply changes without affecting other fields
-        await this.userModel.update(filteredData, { where: { id } });
+      // Use the update method to apply changes without affecting other fields
+      await this.userModel.update(filteredData, { where: { id } });
 
-        // Return the updated user
-        const updatedUser = await this.userModel.findByPk(id);
-        if (!updatedUser) {
-            throw new Error('User not found after update');
-        }
-        return updatedUser;
+      // Return the updated user
+      const updatedUser = await this.userModel.findByPk(id);
+      if (!updatedUser) {
+        throw new Error('User not found after update');
+      }
+      return updatedUser;
     } catch (error) {
-        console.log('error: \n', error);
-        throw new InternalServerErrorException('Failed to update user');
+      console.log('error: \n', error);
+      throw new InternalServerErrorException('Failed to update user');
     }
-}
+  }
 
-async getProfile(id: number): Promise<Partial<User>> {
-  const user = (await this.userModel.findByPk(id))?.toJSON();
-  return {
-    id: user?.id,
-    name: user?.name || "",
-    email: user?.email || "",
-  };
-}
+  async getProfile(id: number): Promise<Partial<User>> {
+    const user = (await this.userModel.findByPk(id))?.toJSON();
+    return {
+      id: user?.id,
+      name: user?.name || '',
+      email: user?.email || '',
+    };
+  }
 }

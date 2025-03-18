@@ -19,7 +19,10 @@ export class BookController {
 
   @UseGuards(AuthGuard)
   @Get('library/:libraryId')
-  async getAllLibraryBooks(@Param('libraryId') id: number, @Req() req: any): Promise<Book[]> {
+  async getAllLibraryBooks(
+    @Param('libraryId') id: number,
+    @Req() req: any,
+  ): Promise<Book[]> {
     return this.bookService.libraryCollection(id, req);
   }
 
