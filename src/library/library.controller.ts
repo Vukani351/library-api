@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { LibraryService } from './library.service';
 import { Library } from '../models/library.model';
@@ -21,9 +22,13 @@ export class LibraryController {
     return this.libraryService.create(library);
   }
 
+  @UseGuards(AuthGuard) // turn this on when its working & ensure that ui is conforming
   @Get()
-  findAll() {
-    return this.libraryService.findAll();
+  findAll(@Query('name') name: string) {
+    if (!name) {
+      throw new Error('Query parameter "name" is required');
+    }
+    return this.libraryService.getLibraryByName(name);
   }
 
   // @UseGuards(AuthGuard) - turn this on when its working & ensure that ui is conforming

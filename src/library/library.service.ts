@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Library } from '../models/library.model';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { User } from 'src/models/user.model';
+import { Op } from 'sequelize';
+
 @Injectable()
 export class LibraryService {
   constructor(
@@ -16,6 +18,31 @@ export class LibraryService {
     return this.libraryModel.findAll();
   }
 
+  async getLibraryByName(name: string): Promise<Library[]> {
+    try {
+      /* todo:
+      * Find a library by its name
+      * add logic to also search by name
+      */
+      const library = await this.libraryModel.findAll({
+        where: {
+          name: {
+            [Op.like]: `%${name}%`, // Searches for names containing the given string
+          },
+        },
+      });
+      
+      // If no library is found, throw a NotFoundException
+      if (!library) {
+        throw new NotFoundException(`Library with the name "${name}" not found`);
+      }
+  
+      return library;
+    } catch (error) {
+      throw new Error('Sorry, there is an issue. Please try again.');
+    }
+  }
+  
   async getLibrary(userId: number): Promise<Library> {
     try {
       /* TODO:

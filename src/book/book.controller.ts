@@ -35,7 +35,7 @@ export class BookController {
   @UseGuards(AuthGuard)
   @Post('/new')
   async create(@Body() bookData: Partial<Book>): Promise<Book> {
-    return this.bookService.create({
+    return await this.bookService.create({
       thumbnail: bookData.thumbnail,
       borrower_id: bookData.borrower_id,
       description: bookData.description,
