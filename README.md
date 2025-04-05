@@ -102,6 +102,7 @@ Here are some related projects:
 - [Fastify-JWT Plugin](https://github.com/fastify/fastify-jwt)  
 - [Fastify-Swagger Plugin](https://github.com/fastify/fastify-swagger)  
 - [DayJS Library](https://github.com/iamkun/dayjs)
+- [Cloudinary Doc's](https://cloudinary.com/documentation/node_integration)
 ---
 
 ## Project Structure
@@ -145,8 +146,10 @@ personal-library/
 ## Todo:
 
 - we need user groups, people can either be owners or readers from a library. this means we might need a user group that is allowed to access a certain library[] 
-- Remove express & use fastify for a change.
+- Remove express & use fastify for a change. [x]
 - Add a reply decorator for standardizing responses.
 - Create and test the docker file for running the application build.
 - add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.[]
-- deploy this to google cloud [-]
+- deploy this to AWS [x]
+- Add logic for DTO's []
+- use Dto []
