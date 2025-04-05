@@ -43,7 +43,7 @@ export class LibraryService {
     }
   }
   
-  async getLibrary(userId: number): Promise<Library> {
+  async getLibrary(userId: number): Promise<Library | any> {
     try {
       /* TODO:
        * Find a library using user id.
@@ -63,7 +63,11 @@ export class LibraryService {
         });
         throw new NotFoundException(`Library by the user ${userId} not found`);
       }
-      return library;
+
+      // get the library requests:
+      const lib_requests = this.getUserLibrariesRequests(userId, library.id);
+      const libraryClone = { ...library.toJSON(), requests: lib_requests };
+      return libraryClone;
     } catch (error) {
       throw new Error('Sorry, there is an issue. Please try again.');
     }

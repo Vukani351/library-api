@@ -71,4 +71,16 @@ export class LibraryController {
   async approveAccess(@Param('requestId') requestId: number) {
     return this.libraryService.approveAccess(requestId);
   }
+  
+  // @Post(':id/thumbnail')
+  // async updateThumbnail(
+  //   @Param('id') userId: number,
+  //   @Body('thumbnail') thumbnailUrl: string,
+  // ): Promise<User> {
+  //   if (!thumbnailUrl) {
+  //     throw new BadRequestException('Thumbnail URL is required');
+  //   }
+  //   return this.userService.updateUserThumbnail(userId, thumbnailUrl);
+  // }
+  
 }

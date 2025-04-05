@@ -27,4 +27,16 @@ export class User extends Model<User> {
     defaultValue: 'active',
   })
   status: string;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+  })
+  address: string; // New column for address
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+  })
+  thumbnail: string; // New column for thumbnail
 }

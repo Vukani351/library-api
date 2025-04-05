@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { BookModule } from './book/book.module';
 import { LibraryModule } from './library/library.module';
 import { UserModule } from './user/user.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -37,6 +38,9 @@ import { UserModule } from './user/user.module';
         }
       },
       inject: [ConfigService],
+    }),
+    MulterModule.register({
+      dest: './uploads', // Set the destination folder for temp file storage
     }),
     BookModule,
     LibraryModule,
