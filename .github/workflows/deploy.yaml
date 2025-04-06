@@ -29,71 +29,24 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Setup logging
-            DEPLOY_LOG="/home/ubuntu/library-api/deploy.log"
-            echo "=== Deployment started at $(date) ===" >> $DEPLOY_LOG
-
-            # Function for logging
-            log_message() {
-              echo "$1" | tee -a $DEPLOY_LOG
-            }
-
             # Stop services
-            log_message "Stopping services..."
             sudo systemctl stop caddy || log_message "Warning: Caddy stop failed"
             sudo systemctl stop mysql || log_message "Warning: MySQL stop failed"
 
-            # Navigate to project directory
-            cd /home/ubuntu/library-api || {
-              log_message "ERROR: Failed to navigate to project directory"
-              exit 1
-            }
-
-            # Pull latest changes
-            log_message "Pulling latest code..."
-            git pull origin main >> $DEPLOY_LOG 2>&1 || {
-              log_message "ERROR: Git pull failed"
-              exit 1
-            }
-
             # Install dependencies
-            log_message "Installing dependencies..."
-            npm install --production >> $DEPLOY_LOG 2>&1 || {
-              log_message "ERROR: npm install failed"
-              exit 1
-            }
+            npm install
 
             # Run database migrations
-            log_message "Running database migrations..."
-            npm run migrate:prod >> $DEPLOY_LOG 2>&1 || {
-              log_message "ERROR: Database migration failed"
-              exit 1
-            }
+            npm run migrate:prod
 
             # Build the project
-            log_message "Building project..."
-            npm run build >> $DEPLOY_LOG 2>&1 || {
-              log_message "ERROR: Build failed"
-              exit 1
-            }
+            npm run build
 
             # Restart services
-            log_message "Restarting services..."
-            sudo systemctl start mysql >> $DEPLOY_LOG 2>&1 || {
-              log_message "ERROR: MySQL start failed"
-              exit 1
-            }
+            sudo systemctl start mysql
 
             # Start/Restart PM2 process
-            pm2 restart library-api >> $DEPLOY_LOG 2>&1 || {
-              log_message "PM2 restart failed, attempting to start..."
-              pm2 start dist/main.js --name library-api >> $DEPLOY_LOG 2>&1 || {
-                log_message "ERROR: PM2 start failed"
-                exit 1
-              }
-            }
-
-            log_message "=== Deployment completed at $(date) ==="
+            sudo systemctl start caddy
 
       - name: Upload deployment logs
         if: always()
