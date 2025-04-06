@@ -96,7 +96,7 @@ jobs:
 
       - name: Upload deployment logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: deployment-logs
           path: /home/library-api/deploy.log
