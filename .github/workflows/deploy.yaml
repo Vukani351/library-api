@@ -16,9 +16,9 @@ jobs:
 
       - name: Run Build
         run: |
-          sudo mkdir -p /home/library-api
-          npm run build >> /home/library-api/deploy.log 2>&1 || {
-            echo "Build failed at $(date)" >> /home/library-api/deploy.log
+          sudo mkdir -p /home/ubuntu/library-api
+          npm run build >> /home/ubuntu/library-api/deploy.log 2>&1 || {
+            echo "Build failed at $(date)" >> /home/ubuntu/library-api/deploy.log
             exit 1
           }
 
@@ -30,7 +30,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             # Setup logging
-            DEPLOY_LOG="/home/library-api/deploy.log"
+            DEPLOY_LOG="/home/ubuntu/library-api/deploy.log"
             echo "=== Deployment started at $(date) ===" >> $DEPLOY_LOG
 
             # Function for logging
@@ -44,7 +44,7 @@ jobs:
             sudo systemctl stop mysql || log_message "Warning: MySQL stop failed"
 
             # Navigate to project directory
-            cd /home/library-api || {
+            cd /home/ubuntu/library-api || {
               log_message "ERROR: Failed to navigate to project directory"
               exit 1
             }
@@ -100,4 +100,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deployment-logs
-          path: /home/library-api/deploy.log
+          path: /home/ubuntu/library-api/deploy.log
