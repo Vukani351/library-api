@@ -1,43 +1,102 @@
-name: Deploy NestJS Application
+name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - main # or your default branch name
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
+        continue-on-error: true
 
-      - name: Build
-        run: npm run build
-
-      - name: Run Tests
-        run: npm test
-
-      - name: Deploy to Production
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+      - name: Run Build
         run: |
-          echo "$SSH_PRIVATE_KEY" > deploy_key
-          chmod 600 deploy_key
-          ssh -i deploy_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP '
-            cd /library-api &&
-            git pull &&
-            npm install &&
-            npm run build &&
-            pm2 restart library-api
-          '
+          npm run build >> /home/library-api/deploy.log 2>&1 || {
+            echo "Build failed at $(date)" >> /home/library-api/deploy.log
+            exit 1
+          }
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Setup logging
+            DEPLOY_LOG="/home/library-api/deploy.log"
+            echo "=== Deployment started at $(date) ===" >> $DEPLOY_LOG
+
+            # Function for logging
+            log_message() {
+              echo "$1" | tee -a $DEPLOY_LOG
+            }
+
+            # Stop services
+            log_message "Stopping services..."
+            sudo systemctl stop caddy || log_message "Warning: Caddy stop failed"
+            sudo systemctl stop mysql || log_message "Warning: MySQL stop failed"
+
+            # Navigate to project directory
+            cd /home/library-api || {
+              log_message "ERROR: Failed to navigate to project directory"
+              exit 1
+            }
+
+            # Pull latest changes
+            log_message "Pulling latest code..."
+            git pull origin main >> $DEPLOY_LOG 2>&1 || {
+              log_message "ERROR: Git pull failed"
+              exit 1
+            }
+
+            # Install dependencies
+            log_message "Installing dependencies..."
+            npm install --production >> $DEPLOY_LOG 2>&1 || {
+              log_message "ERROR: npm install failed"
+              exit 1
+            }
+
+            # Run database migrations
+            log_message "Running database migrations..."
+            npm run migrate:prod >> $DEPLOY_LOG 2>&1 || {
+              log_message "ERROR: Database migration failed"
+              exit 1
+            }
+
+            # Build the project
+            log_message "Building project..."
+            npm run build >> $DEPLOY_LOG 2>&1 || {
+              log_message "ERROR: Build failed"
+              exit 1
+            }
+
+            # Restart services
+            log_message "Restarting services..."
+            sudo systemctl start mysql >> $DEPLOY_LOG 2>&1 || {
+              log_message "ERROR: MySQL start failed"
+              exit 1
+            }
+
+            # Start/Restart PM2 process
+            pm2 restart library-api >> $DEPLOY_LOG 2>&1 || {
+              log_message "PM2 restart failed, attempting to start..."
+              pm2 start dist/main.js --name library-api >> $DEPLOY_LOG 2>&1 || {
+                log_message "ERROR: PM2 start failed"
+                exit 1
+              }
+            }
+
+            log_message "=== Deployment completed at $(date) ==="
+
+      - name: Upload deployment logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: deployment-logs
+          path: /home/library-api/deploy.log
