@@ -8,6 +8,7 @@ import {
   Put,
   UseGuards,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
@@ -94,5 +95,17 @@ export class BookController {
   @Get(':bookId')
   async getBookById(@Param('bookId') bookId: number): Promise<Book> {
     return this.bookService.getById(bookId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('thumbnail/:bookId')
+  async updateThumbnail(
+    @Param('bookId') bookId: number,
+    @Body('thumbnail') thumbnail: string,
+  ): Promise<Book> {
+    if (!thumbnail) {
+      throw new NotFoundException('Thumbnail URL is required');
+    }
+    return this.bookService.updateThumbnail(bookId, thumbnail);
   }
 }

@@ -169,6 +169,34 @@ export class LibraryService {
     }
   }
 
+  /*
+  * todo:
+  * function to get all the requests a user has made to see libraries.
+  * should return list of library requests, approved and denied.
+  */
+
+  async getUserLibraryRequests(userId: number) {
+    try {
+      const requestedLibraries = await this.libraryAccessModel.findAll({
+        where: { user_id: userId },
+      });
+
+      const library_requests = await Promise.all(
+        requestedLibraries.map(async (library) => {
+          const libJson = library.toJSON();
+          const userData = (await this.getUserById(libJson.user_id)).toJSON();
+          const { name, email } = userData;
+          return { ...libJson, user_data: { name, email } };
+        }),
+      );
+
+      return library_requests;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new Error('Sorry, there is an issue. Please try requesting again.');
+    }
+  }
+
   async getUserById(id: number): Promise<User> {
     const user = (await this.UserModel.findByPk(id)) as User;
     if (!user) {

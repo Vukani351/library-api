@@ -25,7 +25,6 @@ export class LibraryController {
   @UseGuards(AuthGuard) // turn this on when its working & ensure that ui is conforming
   @Get()
   findAll(@Query('name') name: string) {
-    console.log('NAME: ', name);
     if (!name) {
       throw new Error('Query parameter "name" is required');
     }
@@ -35,8 +34,22 @@ export class LibraryController {
   @UseGuards(AuthGuard)// - turn this on when its working & ensure that ui is conforming
   @Get(':id')
   findOne(@Param('id') userId: string) {
-    console.log('USER ID', userId);
     return this.libraryService.getLibrary(+userId);
+  }
+
+  @UseGuards(AuthGuard)// - turn this on when its working & ensure that ui is conforming
+  @Get(':userId/requests')
+  getLibrariesRequests(@Param('id') userId: string) {
+    return this.libraryService.getUserLibraryRequests(+userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/:userId/:libraryId/requests')
+  getUserLibraryRequests(
+    @Param('userId') userId: number,
+    @Param('libraryId') libraryId: number,
+  ): any {
+    return this.libraryService.getUserLibrariesRequests(userId, libraryId);
   }
 
   @UseGuards(AuthGuard)
@@ -52,20 +65,13 @@ export class LibraryController {
   }
 
   @UseGuards(AuthGuard)
-  @Post(':id/request')
+  @Post(':userId/:libraryId/request')
   requestAccess(
-    @Body() { userId, libraryId }: { userId: number; libraryId: number },
-  ) {
-    return this.libraryService.requestAccess(userId, libraryId);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('/:userId/:libraryId/requests')
-  getLibraryRequests(
     @Param('userId') userId: number,
     @Param('libraryId') libraryId: number,
-  ): any {
-    return this.libraryService.getUserLibrariesRequests(userId, libraryId); // might not need to use this to get the id but token.
+  ) {
+    console.log('getLibraryRequests:', userId, libraryId);
+    return this.libraryService.requestAccess(userId, libraryId);
   }
 
   @UseGuards(AuthGuard)
