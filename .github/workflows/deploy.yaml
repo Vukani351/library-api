@@ -16,7 +16,6 @@ jobs:
 
       - name: Run Build
         run: |
-          sudo mkdir -p /home/ubuntu/library-api
           npm run build >> /home/ubuntu/library-api/deploy.log 2>&1 || {
             echo "Build failed at $(date)" >> /home/ubuntu/library-api/deploy.log
             exit 1
