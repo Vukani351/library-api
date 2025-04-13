@@ -16,8 +16,9 @@ jobs:
 
       - name: Run Build
         run: |
+          sudo mkdir -p ./library-api
           npm run build >> ./library-api/deploy.log 2>&1 || {
-            echo "Build failed at $(date)" >> ./library-api/deploy.log
+            echo "Build failed at $(date)" >>./library-api/deploy.log
             exit 1
           }
 
