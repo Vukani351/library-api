@@ -26,7 +26,7 @@ export class LibraryController {
   @Get()
   findAll(@Query('name') name: string) {
     if (!name) {
-      throw new Error('Query parameter "name" is required');
+      throw new Error('Query parameter "name" is required.');
     }
     return this.libraryService.getLibraryByName(name);
   }
@@ -39,8 +39,8 @@ export class LibraryController {
 
   @UseGuards(AuthGuard)// - turn this on when its working & ensure that ui is conforming
   @Get(':userId/requests')
-  getLibrariesRequests(@Param('id') userId: string) {
-    return this.libraryService.getUserLibraryRequests(+userId);
+  getLibrariesRequests(@Param('userId') userId: number) {
+    return this.libraryService.getUserLibraryRequests(userId);
   }
 
   @UseGuards(AuthGuard)

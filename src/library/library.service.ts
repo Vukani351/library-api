@@ -165,7 +165,7 @@ export class LibraryService {
       return library_requests;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw new Error('Sorry, there is an issue. Please try requesting again.');
+      throw new Error('Sorry, there is an issue. Please try requesting library requests again.\n', error);
     }
   }
 
@@ -183,17 +183,24 @@ export class LibraryService {
 
       const library_requests = await Promise.all(
         requestedLibraries.map(async (library) => {
+          let temp_libJson = {};
           const libJson = library.toJSON();
+           await this.libraryModel.findOne({
+            where: { id: library.id },
+          }).then((lib) => {
+            temp_libJson = { ...libJson, name: lib?.toJSON().name }
+          });
+          console.log("libJson: \n", libJson);
+
           const userData = (await this.getUserById(libJson.user_id)).toJSON();
           const { name, email } = userData;
-          return { ...libJson, user_data: { name, email } };
+          return { ...temp_libJson, user_data: { name, email }};
         }),
       );
 
       return library_requests;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw new Error('Sorry, there is an issue. Please try requesting again.');
+      throw Error('Sorry, there is an issue on getUserLibraryRequests. Please try requesting again.', error);
     }
   }
 
