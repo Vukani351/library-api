@@ -25,15 +25,17 @@ export class LibraryController {
   @UseGuards(AuthGuard) // turn this on when its working & ensure that ui is conforming
   @Get()
   findAll(@Query('name') name: string) {
+    console.log('NAME: ', name);
     if (!name) {
       throw new Error('Query parameter "name" is required');
     }
     return this.libraryService.getLibraryByName(name);
   }
 
-  // @UseGuards(AuthGuard) - turn this on when its working & ensure that ui is conforming
+  @UseGuards(AuthGuard)// - turn this on when its working & ensure that ui is conforming
   @Get(':id')
   findOne(@Param('id') userId: string) {
+    console.log('USER ID', userId);
     return this.libraryService.getLibrary(+userId);
   }
 

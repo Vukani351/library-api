@@ -43,4 +43,18 @@ export class Library extends Model<Library> {
     onDelete: 'CASCADE',
   })
   user_id: number;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+    comment: 'URL to the library thumbnail image'
+  })
+  thumbnail: string;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+    comment: 'Physical address of the library'
+  })
+  address: string;
 }

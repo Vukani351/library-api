@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Library } from '../models/library.model';
 import { LibraryAccess } from 'src/models/library-access.model';
@@ -20,26 +20,26 @@ export class LibraryService {
 
   async getLibraryByName(name: string): Promise<Library[]> {
     try {
-      /* todo:
+       /* todo:
       * Find a library by its name
       * add logic to also search by name
       */
-      const library = await this.libraryModel.findAll({
+      const libraries = await this.libraryModel.findAll({
         where: {
           name: {
-            [Op.like]: `%${name}%`, // Searches for names containing the given string
+            [Op.like]: `%${name}%`,
           },
         },
       });
-      
-      // If no library is found, throw a NotFoundException
-      if (!library) {
-        throw new NotFoundException(`Library with the name "${name}" not found`);
+
+      if (libraries.length === 0) {
+        throw new NotFoundException(`Library with a name like "${name}" not found`);
       }
-  
-      return library;
+      
+      return libraries;
     } catch (error) {
-      throw new Error('Sorry, there is an issue. Please try again.');
+      console.error('Error in getLibraryByName:', error);
+      throw new InternalServerErrorException('Sorry, there is an issue with library by name. ' + error.message);
     }
   }
   
@@ -55,21 +55,30 @@ export class LibraryService {
       const library = await this.libraryModel.findOne({
         where: { user_id: userId },
       });
-      if (!library) {
-        this.create({
-          user_id: userId,
-          name: 'Home Library',
-          description: 'My Home Library',
-        });
-        throw new NotFoundException(`Library by the user ${userId} not found`);
-      }
+
+      // if (!library) {
+      //   this.create({
+      //     user_id: userId,
+      //     name: 'Home Library',
+      //     description: 'My Home Library',
+      //   });
+      //   //throw new NotFoundException(`Library by the user ${userId} not found`);
+      // }
 
       // get the library requests:
-      const lib_requests = this.getUserLibrariesRequests(userId, library.id);
-      const libraryClone = { ...library.toJSON(), requests: lib_requests };
+      const lib_requests = this.getUserLibrariesRequests(userId, library?.id);
+      const libraryClone = library ? { ...library.toJSON(), requests: lib_requests } : null;
       return libraryClone;
     } catch (error) {
-      throw new Error('Sorry, there is an issue. Please try again.');
+      const library = this.create({
+        user_id: userId,
+        name: 'Home Library',
+        description: 'My Home Library',
+      });
+      const lib_requests = this.getUserLibrariesRequests(userId, (await library)?.id);
+      const libraryClone = library ? { ...(await library).toJSON(), requests: lib_requests } : null;
+      return libraryClone;
+      //throw new Error('Sorry, there is an issue with library by user id. Please try again.', error);
     }
   }
 
@@ -156,7 +165,7 @@ export class LibraryService {
       return library_requests;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw new Error('Sorry, there is an issue. Please try again.');
+      throw new Error('Sorry, there is an issue. Please try requesting again.');
     }
   }
 
