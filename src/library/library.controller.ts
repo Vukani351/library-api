@@ -37,19 +37,16 @@ export class LibraryController {
     return this.libraryService.getLibrary(+userId);
   }
 
-  @UseGuards(AuthGuard)// - turn this on when its working & ensure that ui is conforming
-  @Get(':userId/requests')
-  getLibrariesRequests(@Param('userId') userId: number) {
+  @UseGuards(AuthGuard) // - turn this on when its working & ensure that ui is conforming
+  @Get('user-requests/:userId')
+  getUserLibrariesRequests(@Param('userId') userId: number) {
     return this.libraryService.getUserLibraryRequests(userId);
   }
 
   @UseGuards(AuthGuard)
-  @Get('/:userId/:libraryId/requests')
-  getUserLibraryRequests(
-    @Param('userId') userId: number,
-    @Param('libraryId') libraryId: number,
-  ): any {
-    return this.libraryService.getUserLibrariesRequests(userId, libraryId);
+  @Get('library-requests/:libraryId')
+  getLibraryRequests(@Param('libraryId') libraryId: string): any {
+    return this.libraryService.getLibrariesRequests(+libraryId);
   }
 
   @UseGuards(AuthGuard)
@@ -70,7 +67,6 @@ export class LibraryController {
     @Param('userId') userId: number,
     @Param('libraryId') libraryId: number,
   ) {
-    console.log('getLibraryRequests:', userId, libraryId);
     return this.libraryService.requestAccess(userId, libraryId);
   }
 

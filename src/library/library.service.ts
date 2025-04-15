@@ -66,7 +66,7 @@ export class LibraryService {
       // }
 
       // get the library requests:
-      const lib_requests = this.getUserLibrariesRequests(userId, library?.id);
+      const lib_requests = this.getUserLibraryRequests(userId);
       const libraryClone = library ? { ...library.toJSON(), requests: lib_requests } : null;
       return libraryClone;
     } catch (error) {
@@ -75,7 +75,7 @@ export class LibraryService {
         name: 'Home Library',
         description: 'My Home Library',
       });
-      const lib_requests = this.getUserLibrariesRequests(userId, (await library)?.id);
+      const lib_requests = this.getUserLibraryRequests(userId);
       const libraryClone = library ? { ...(await library).toJSON(), requests: lib_requests } : null;
       return libraryClone;
       //throw new Error('Sorry, there is an issue with library by user id. Please try again.', error);
@@ -147,60 +147,91 @@ export class LibraryService {
     });
   */
 
-  async getUserLibrariesRequests(userId: number, libraryId: number) {
+  async getLibrariesRequests(libraryId: number) {
     try {
       const requestedLibraries = await this.libraryAccessModel.findAll({
-        where: { user_id: userId, library_id: libraryId },
+        where: { library_id: libraryId },
       });
 
       const library_requests = await Promise.all(
         requestedLibraries.map(async (library) => {
           const libJson = library.toJSON();
-          const userData = (await this.getUserById(libJson.user_id)).toJSON();
-          const { name, email } = userData;
+          const { name, email } = await this.getUserById(libJson.user_id).then(data => {
+            return data.toJSON();
+          });
           return { ...libJson, user_data: { name, email } };
         }),
       );
 
       return library_requests;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw new Error('Sorry, there is an issue. Please try requesting library requests again.\n', error);
     }
   }
 
   /*
-  * todo:
+  * todo: 
   * function to get all the requests a user has made to see libraries.
   * should return list of library requests, approved and denied.
   */
-
-  async getUserLibraryRequests(userId: number) {
+  async getUserLibraryRequests(userId: number): Promise<any[]> {
     try {
-      const requestedLibraries = await this.libraryAccessModel.findAll({
+
+      // Fetch all library access requests for the user
+      const access = await this.libraryAccessModel.findAll({
         where: { user_id: userId },
       });
 
-      const library_requests = await Promise.all(
-        requestedLibraries.map(async (library) => {
-          let temp_libJson = {};
-          const libJson = library.toJSON();
-           await this.libraryModel.findOne({
-            where: { id: library.id },
-          }).then((lib) => {
-            temp_libJson = { ...libJson, name: lib?.toJSON().name }
-          });
-          console.log("libJson: \n", libJson);
+      if (!access || access.length === 0) {
+        throw new NotFoundException(`No library requests found for user with ID ${userId}`);
+      }
 
-          const userData = (await this.getUserById(libJson.user_id)).toJSON();
-          const { name, email } = userData;
-          return { ...temp_libJson, user_data: { name, email }};
-        }),
+      // Use Promise.all to resolve all async operations in the map
+      const libraryRequests = await Promise.all(
+        access.map(async (library) => {
+          const libraryJson = library.toJSON();
+
+          // Validate that library_id exists
+          if (!libraryJson.library_id) {
+            console.error(`Invalid library_id for access record:`, libraryJson);
+            throw new Error(`Invalid library_id for access record with ID ${libraryJson.id}`);
+          }
+
+          // Fetch library data
+          const libraryData = await this.libraryModel.findOne({
+            where: { id: libraryJson.library_id },
+          });
+
+          if (!libraryData) {
+            console.error(`Library not found for ID: ${libraryJson.library_id}`);
+            throw new NotFoundException(`Library with ID ${libraryJson.library_id} not found`);
+          }
+
+          const libraryDetails = libraryData.toJSON();
+
+          // Fetch user data for the library
+          const userData = await this.getUserById(libraryDetails.user_id);
+          const userJson = userData.toJSON();
+
+          // Combine library, user, and library name data
+          const extendedLibrary = {
+            ...libraryJson,
+            library_name: libraryDetails.name,
+            thumbnail: libraryDetails.thumbnail,
+            owner_thumbnail: userJson?.thumbnail,
+            owner_name: userJson.name,
+            owner_email: userJson.email,
+          };
+
+          return extendedLibrary;
+        })
       );
 
-      return library_requests;
+      return libraryRequests;
     } catch (error) {
-      throw Error('Sorry, there is an issue on getUserLibraryRequests. Please try requesting again.', error);
+      throw new InternalServerErrorException(
+        'Failed to fetch library requests. Please try again later.'
+      );
     }
   }
 

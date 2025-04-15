@@ -12,45 +12,49 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        continue-on-error: true
 
-      - name: Run Build
-        run: |
-          sudo mkdir -p ./library-api
-          npm run build >> ./library-api/deploy.log 2>&1 || {
-            echo "Build failed at $(date)" >>./library-api/deploy.log
-            exit 1
-          }
+      - name: Run tests
+        run: npm test
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.6
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Stop services
-            sudo systemctl stop caddy || log_message "Warning: Caddy stop failed"
-            sudo systemctl stop mysql || log_message "Warning: MySQL stop failed"
+            # Stop Caddy first
+            echo "Stopping Caddy server..."
+            sudo systemctl stop caddy || echo "Caddy might not be running"
+
+            # Navigate to project directory
+            cd /path/to/your/app
+
+            # Pull latest changes
+            echo "Pulling latest code..."
+            git pull origin main
 
             # Install dependencies
-            npm install
+            echo "Installing dependencies..."
+            npm install --production
 
             # Run database migrations
+            echo "Running database migrations..."
             npm run migrate:prod
 
-            # Build the project
+            # Build the project (if needed)
+            echo "Building project..."
             npm run build
 
-            # Restart services
-            sudo systemctl start mysql
+            # Restart your application
+            echo "Restarting application..."
+            pm2 restart your-app-name || pm2 start dist/main.js --name your-app-name
 
-            # Start/Restart PM2 process
+            # Start Caddy again
+            echo "Starting Caddy server..."
             sudo systemctl start caddy
 
-      - name: Upload deployment logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment-logs
-          path: /home/ubuntu/library-api/deploy.log
+            # Verify services are running
+            echo "Current status:"
+            sudo systemctl status caddy --no-pager || true
+            pm2 status || true
