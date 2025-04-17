@@ -139,7 +139,113 @@ personal-library/
 - Building & running the image:
 > docker-compose up --build
 
+------
+1. Process for Handling Model Changes and Migrations
+- When a developer modifies or adds a model in the models directory, they should ensure the Sequelize model reflects the desired database schema.
 
+2. Generate a Migration:
+- Use Sequelize CLI to generate a migration file for the changes
+
+```shell
+   npx sequelize-cli migration:generate --name meaningful-migration-name
+```
+
+- This will create a new migration file in the migrations directory.
+
+3. Edit the Migration File:
+- - Add the necessary `up` and `down` methods to apply and revert the changes. For example:
+     ```js
+     // filepath: src/database/migrations/<timestamp>-add-column-example.js
+     module.exports = {
+       up: async (queryInterface, Sequelize) => {
+         await queryInterface.addColumn('table_name', 'column_name', {
+           type: Sequelize.STRING,
+           allowNull: true,
+         });
+       },
+       down: async (queryInterface) => {
+         await queryInterface.removeColumn('table_name', 'column_name');
+       },
+     };
+     ```
+
+4. **Run Migrations Locally**:
+- Apply the migrations to your local database:
+```bash
+   npx sequelize-cli db:migrate
+```
+
+5. **Test the Changes**:
+   - Verify that the changes work as expected in your local environment.
+
+6. **Commit and Push**:
+   - Commit the updated models and migration files to the repository.
+
+---
+
+#### **Modify Deployment Workflow**
+In your GitHub Actions workflow (`.github/workflows/deploy.yaml`), ensure migrations are run during deployment:
+```yaml
+- name: Run database migrations
+  run: npm run migrate:prod
+```
+
+---
+
+### **3. Automating Migrations Locally**
+
+To simplify local development, you can create a script to run migrations automatically when starting the application:
+
+#### **Update main.ts**
+Modify the `bootstrap` function to include migrations:
+```ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import * as dotenv from 'dotenv';
+import { exec } from 'child_process';
+
+async function bootstrap() {
+  const environment = process.env.NODE_ENV || 'development';
+  dotenv.config({ path: `.env.${environment}` });
+
+  // Run migrations before starting the app
+  exec('npx sequelize-cli db:migrate', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Migration error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`Migration stderr: ${stderr}`);
+      return;
+    }
+    console.log(`Migration stdout: ${stdout}`);
+  });
+
+  const app = await NestFactory.create(AppModule);
+  app.enableCors();
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+}
+bootstrap();
+```
+
+---
+
+### **4. Best Practices**
+
+1. **Migration Naming**:
+   - Use descriptive names for migrations (e.g., `add-thumbnail-to-library`).
+
+2. **Review Migrations**:
+   - Always review migration files before running them to ensure they match the intended changes.
+
+3. **Rollback Support**:
+   - Ensure the `down` method in migrations can revert changes cleanly.
+
+4. **Environment-Specific Configurations**:
+   - Use .env files to manage database credentials for different environments (development, production).
+
+5. **Database Backups**:
+   - Before running migrations in production, ensure you have a backup of the database.
 
 ---
 

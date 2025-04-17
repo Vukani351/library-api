@@ -156,7 +156,7 @@ export class BookService {
   async getBorrowRequests(ownerId: number) {
     try {
       const requests = await this.bookRequestModel.findAll({
-        where: { owner_id: ownerId, status: 'pending' },
+        where: { owner_id: ownerId },
         include: [Book],
       });
       if (!requests || requests.length === 0) {

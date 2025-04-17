@@ -20,7 +20,7 @@ export class LibraryService {
 
   async getLibraryByName(name: string): Promise<Library[]> {
     try {
-       /* todo:
+      /* todo:
       * Find a library by its name
       * add logic to also search by name
       */
@@ -45,25 +45,21 @@ export class LibraryService {
   
   async getLibrary(userId: number): Promise<Library | any> {
     try {
-      /* TODO:
+      /* 
+       * TODO:
        * Find a library using user id.
        * Check if the library exists.
        * If it does not exist, create one.
        * Return the library list when there is more than one.
        * User will have to pick which one from a drop down.
-       */
+      */
       const library = await this.libraryModel.findOne({
         where: { user_id: userId },
       });
 
-      // if (!library) {
-      //   this.create({
-      //     user_id: userId,
-      //     name: 'Home Library',
-      //     description: 'My Home Library',
-      //   });
-      //   //throw new NotFoundException(`Library by the user ${userId} not found`);
-      // }
+      if (!library) {
+        throw new NotFoundException(`Library by the user ${userId} not found`);
+      }
 
       // get the library requests:
       const lib_requests = this.getUserLibraryRequests(userId);
@@ -142,9 +138,9 @@ export class LibraryService {
   /*
     * TODO:
     * USE THIS GUY TO GET THE USER ID FROM THE TOKEN
-    const payload = await this.jwtService.verifyAsync(token, {
-      secret: jwtConstants.secret,
-    });
+    * const payload = await this.jwtService.verifyAsync(token, {
+    *   secret: jwtConstants.secret,
+    * });
   */
 
   async getLibrariesRequests(libraryId: number) {
@@ -176,7 +172,6 @@ export class LibraryService {
   */
   async getUserLibraryRequests(userId: number): Promise<any[]> {
     try {
-
       // Fetch all library access requests for the user
       const access = await this.libraryAccessModel.findAll({
         where: { user_id: userId },

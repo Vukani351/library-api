@@ -81,7 +81,6 @@ export class BookController {
      * fix this to return the borrow requests
      * remove this comment so that we have this errror fixed for the entire application
      */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.bookService.getBorrowRequests(ownerId);
   }
 

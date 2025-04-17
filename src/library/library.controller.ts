@@ -22,7 +22,7 @@ export class LibraryController {
     return this.libraryService.create(library);
   }
 
-  @UseGuards(AuthGuard) // turn this on when its working & ensure that ui is conforming
+  @UseGuards(AuthGuard)
   @Get()
   findAll(@Query('name') name: string) {
     if (!name) {
@@ -31,13 +31,13 @@ export class LibraryController {
     return this.libraryService.getLibraryByName(name);
   }
 
-  @UseGuards(AuthGuard)// - turn this on when its working & ensure that ui is conforming
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') userId: string) {
     return this.libraryService.getLibrary(+userId);
   }
 
-  @UseGuards(AuthGuard) // - turn this on when its working & ensure that ui is conforming
+  @UseGuards(AuthGuard)
   @Get('user-requests/:userId')
   getUserLibrariesRequests(@Param('userId') userId: number) {
     return this.libraryService.getUserLibraryRequests(userId);
