@@ -104,9 +104,8 @@ export class LibraryController {
       'library_thumbnail',
       thumbnail,
     );
+
     // Update the user's thumbnail URL in the database
-    console.log("updatedUser", {id: Number(libraryId), url: publicUrl, thumbnail: thumbnail});
-    
     const updatedLibrary = await this.libraryService.updateLibraryThumbnail(libraryId, publicUrl);
     if (!updatedLibrary) {
       throw new BadRequestException('Failed to update library thumbnail.');
@@ -114,4 +113,5 @@ export class LibraryController {
     return updatedLibrary;
   }
   
+  // :id/borrow-history
 }

@@ -53,10 +53,11 @@ Creating an application that will allow me to keep records of the books I have, 
 ### Steps To Create and Run the Project:
 > *All commands in these steps should be executed in the command line or an integrated terminal of your editor.*
 
-1. Clone the repository:  
-   ```bash
+1. Clone the repository:
+
+```bash
    git clone https://github.com/your-repository-url.git
-   ```
+```
 2. Navigate to the project directory:  
    ```bash
    cd personal-library
@@ -66,10 +67,12 @@ Creating an application that will allow me to keep records of the books I have, 
    npm install
    ```
 4. Configure the environment variables in `.env`.
-5. Start the development server:  
-   ```bash
+
+5. Start the development server:
+
+```bash
    npm run dev
-   ```
+```
 
 ---
 
@@ -153,33 +156,35 @@ personal-library/
 - This will create a new migration file in the migrations directory.
 
 3. Edit the Migration File:
-- - Add the necessary `up` and `down` methods to apply and revert the changes. For example:
-     ```js
-     // filepath: src/database/migrations/<timestamp>-add-column-example.js
-     module.exports = {
-       up: async (queryInterface, Sequelize) => {
-         await queryInterface.addColumn('table_name', 'column_name', {
-           type: Sequelize.STRING,
-           allowNull: true,
-         });
-       },
-       down: async (queryInterface) => {
-         await queryInterface.removeColumn('table_name', 'column_name');
-       },
-     };
-     ```
+ - Add the necessary `up` and `down` methods to apply and revert the changes. For example:
+
+```js
+   // filepath: src/database/migrations/<timestamp>-add-column-example.js
+   module.exports = {
+      up: async (queryInterface, Sequelize) => {
+      await queryInterface.addColumn('table_name', 'column_name', {
+         type: Sequelize.STRING,
+         allowNull: true,
+      });
+      },
+      down: async (queryInterface) => {
+      await queryInterface.removeColumn('table_name', 'column_name');
+      },
+   };
+```
 
 4. **Run Migrations Locally**:
 - Apply the migrations to your local database:
+
 ```bash
    npx sequelize-cli db:migrate
 ```
 
 5. **Test the Changes**:
-   - Verify that the changes work as expected in your local environment.
+ - Verify that the changes work as expected in your local environment.
 
 6. **Commit and Push**:
-   - Commit the updated models and migration files to the repository.
+ - Commit the updated models and migration files to the repository.
 
 ---
 
@@ -198,34 +203,35 @@ To simplify local development, you can create a script to run migrations automat
 
 #### **Update main.ts**
 Modify the `bootstrap` function to include migrations:
+
 ```ts
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
-import { exec } from 'child_process';
+   import { NestFactory } from '@nestjs/core';
+   import { AppModule } from './app.module';
+   import * as dotenv from 'dotenv';
+   import { exec } from 'child_process';
 
-async function bootstrap() {
-  const environment = process.env.NODE_ENV || 'development';
-  dotenv.config({ path: `.env.${environment}` });
+   async function bootstrap() {
+   const environment = process.env.NODE_ENV || 'development';
+   dotenv.config({ path: `.env.${environment}` });
 
-  // Run migrations before starting the app
-  exec('npx sequelize-cli db:migrate', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Migration error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`Migration stderr: ${stderr}`);
-      return;
-    }
-    console.log(`Migration stdout: ${stdout}`);
-  });
+   // Run migrations before starting the app
+   exec('npx sequelize-cli db:migrate', (error, stdout, stderr) => {
+      if (error) {
+         console.error(`Migration error: ${error.message}`);
+         return;
+      }
+      if (stderr) {
+         console.error(`Migration stderr: ${stderr}`);
+         return;
+      }
+      console.log(`Migration stdout: ${stdout}`);
+   });
 
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
-}
-bootstrap();
+   const app = await NestFactory.create(AppModule);
+   app.enableCors();
+   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+   }
+   bootstrap();
 ```
 
 ---
@@ -253,9 +259,9 @@ bootstrap();
 
 - we need user groups, people can either be owners or readers from a library. this means we might need a user group that is allowed to access a certain library[] 
 - Remove express & use fastify for a change. [x]
-- Add a reply decorator for standardizing responses.
-- Create and test the docker file for running the application build.
-- add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.[]
+- Add a reply decorator for standardizing responses.[]
+- Create and test the docker file for running the application build.[0]
+- add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.[0]
 - deploy this to AWS [x]
 - Add logic for DTO's []
 - use Dto []
