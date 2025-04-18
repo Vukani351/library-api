@@ -122,14 +122,23 @@ export class LibraryService {
     } as LibraryAccess);
   }
 
-  async approveAccess(requestId: number) {
+  async approveAccess(requestId: number, response: string) {
+    if (response === "" || !response) {
+      throw new Error('Response is required.');
+    }
+    if (!requestId) {
+      throw new Error('Request ID is required.');
+    }
     const accessRequest = await this.libraryAccessModel.findByPk(requestId);
     if (!accessRequest) {
       throw new NotFoundException('Library Request Access does not exist.');
     }
 
     await this.libraryAccessModel.update(
-      { status: 'approved', approved_at: new Date() },
+      {
+        status: response === 'approved'? 'approved': 'denied',
+        approved_at: new Date()
+      },
       { where: { id: requestId } },
     );
     return this.libraryAccessModel.findByPk(requestId);

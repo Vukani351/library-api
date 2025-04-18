@@ -71,9 +71,11 @@ export class LibraryController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':requestId/approve')
-  async approveAccess(@Param('requestId') requestId: number) {
-    return this.libraryService.approveAccess(requestId);
+  @Post(':requestId/response')
+  async approveAccess(
+    @Param('requestId') requestId: number,
+    @Body('response') response: string) {
+    return this.libraryService.approveAccess(requestId, response);
   }
   
   // @Post(':id/thumbnail')
