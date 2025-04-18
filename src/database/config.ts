@@ -1,25 +1,23 @@
-// src/database/config.ts
-import { ConfigService } from '@nestjs/config';
-
-const configService = new ConfigService();
+// filepath: d:\Repository\Right Align\LIBRARY [config.ts](http://_vscodecontentref_/2)
+require('dotenv').config();
 
 module.exports = {
   development: {
-    username: configService.get('DB_USER'),
-    password: configService.get('DB_PASSWORD'),
-    database: configService.get('DB_NAME'),
-    host: configService.get('DB_HOST'),
-    port: configService.get('DB_PORT'),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
     migrationStorageTableName: 'sequelize_meta',
   },
   production: {
-    username: configService.get('DB_USER'),
-    password: configService.get('DB_PASSWORD'),
-    database: configService.get('DB_NAME'),
-    host: configService.get('DB_HOST'),
-    port: configService.get('DB_PORT'),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
     migrationStorageTableName: 'sequelize_meta',
-  }
+  },
 };

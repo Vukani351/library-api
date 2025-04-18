@@ -1,3 +1,4 @@
+// change this name to book-access.model.ts
 import {
   Table,
   Column,
@@ -8,7 +9,7 @@ import {
 import { User } from './user.model';
 import { Book } from './book.model';
 
-@Table({ tableName: 'book_request' })
+@Table({ tableName: 'book_access' })
 export class BookRequest extends Model<BookRequest> {
   @Column({
     type: DataType.INTEGER,

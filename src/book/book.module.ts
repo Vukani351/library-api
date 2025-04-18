@@ -5,7 +5,7 @@ import { Book } from '../models/book.model';
 import { BookService } from './book.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
-import { BookRequest } from 'src/models/book-request.model';
+import { BookRequest } from 'src/models/book-access.model';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
 

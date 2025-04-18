@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { Book } from '../models/book.model';
 import { jwtConstants } from 'src/constants/jwtConstants';
-import { BookRequest } from 'src/models/book-request.model';
+import { BookRequest } from 'src/models/book-access.model';
 import { JwtService } from '@nestjs/jwt';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
@@ -165,13 +165,10 @@ export class BookService {
         );
       }
       return requests;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // throw new InternalServerErrorException(
-      //   'An error occurred while retrieving borrow requests',
-      // );
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return error;
+       throw new InternalServerErrorException(
+         'An error occurred while retrieving borrow requests',
+       );
     }
   }
   async getLibraryBorrowRequests(bookId: number) {

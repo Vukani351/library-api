@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS library_access (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS book_request (
+CREATE TABLE IF NOT EXISTS book_access (
   id INT AUTO_INCREMENT PRIMARY KEY,
   book_id INT NOT NULL,
   borrower_id INT NOT NULL,
