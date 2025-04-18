@@ -246,4 +246,24 @@ export class LibraryService {
     }
     return user;
   }
+
+  async updateLibraryThumbnail(libraryId: number, imageUrl: string): Promise<Library | null> {
+   try {
+     // Check if the user exists
+     const library = await this.libraryModel.findByPk(libraryId);
+     if (!library) {
+       throw new NotFoundException(`Library with id ${libraryId} not found`);
+     }
+     
+     // Update the thumbnail field using the update method
+     await this.libraryModel.update(
+       { thumbnail: imageUrl },
+       { where: { id: libraryId } }
+     );
+     
+     return await this.libraryModel.findByPk(libraryId);
+   } catch (error) {
+      throw new InternalServerErrorException('Failed to update library thumbnail:\n', error);
+   }
+  }
 }

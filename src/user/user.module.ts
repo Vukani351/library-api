@@ -7,7 +7,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ImageFactory } from '../cloudinary/image.factory';
-import { UserThumbnailService } from 'src/cloudinary/UserThumbnail.service';
 
 @Module({
   imports: [
@@ -17,6 +16,6 @@ import { UserThumbnailService } from 'src/cloudinary/UserThumbnail.service';
     }), 
   ],
   controllers: [UserController],
-  providers: [UserService, CloudinaryService, UserThumbnailService, ImageFactory],
+  providers: [UserService, CloudinaryService, ImageFactory],
 })
 export class UserModule {}

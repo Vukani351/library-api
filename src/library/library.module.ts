@@ -7,6 +7,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { User } from '../models/user.model';
+import { ImageFactory } from 'src/cloudinary/image.factory';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Module({
   imports: [
@@ -16,6 +18,6 @@ import { User } from '../models/user.model';
     }),
   ],
   controllers: [LibraryController],
-  providers: [LibraryService],
+  providers: [LibraryService, ImageFactory, CloudinaryService],
 })
 export class LibraryModule {}

@@ -26,7 +26,7 @@ import { MulterModule } from '@nestjs/platform-express';
             dialect: configService.get<string>('DB_DIALECT') as any,
             host: configService.get<string>('DB_HOST'),
             port: configService.get<number>('DB_PORT'),
-            username: configService.get<string>('DB_USERNAME'),
+            username: configService.get<string>('DB_USER'),
             password: configService.get<string>('DB_PASSWORD'),
             database: configService.get<string>('DB_DATABASE'),
             autoLoadModels: true,

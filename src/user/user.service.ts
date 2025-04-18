@@ -109,34 +109,6 @@ export class UserService {
     };
   }
 
-  /*
-    async updateUserThumbnail(userId: number, thumbnailUrl: string): Promise<User> {
-      const user = await this.userModel.findByPk(userId);
-      if (!user) {
-        throw new NotFoundException(`User with id ${userId} not found`);
-      }
-    
-      user.thumbnail = thumbnailUrl;
-      await user.save();
-    
-      return user    async updateThumbnail(userId: number, imageUrl: string): Promise<User> {
-      // Check if the user exists
-      const user = await this.userModel.findByPk(userId);
-      if (!user) {
-        throw new NotFoundException(`User with id ${userId} not found`);
-      }
-    
-      // Update the thumbnail field using the update method
-      await this.userModel.update(
-        { thumbnail: imageUrl },
-        { where: { id: userId } }
-      );
-    
-      // Fetch and return the updated user
-      const updatedUser = await this.userModel.findByPk(userId);
-      return updatedUser;
-    }*/
-  
   async updateThumbnail(userId: number, imageUrl: string): Promise<User | null> {
     // Check if the user exists
     const user = await this.userModel.findByPk(userId);

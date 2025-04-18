@@ -8,14 +8,22 @@ import {
   Delete,
   UseGuards,
   Query,
+  BadRequestException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { LibraryService } from './library.service';
 import { Library } from '../models/library.model';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageFactory } from 'src/cloudinary/image.factory';
 
 @Controller('library')
 export class LibraryController {
-  constructor(private readonly libraryService: LibraryService) {}
+  constructor(
+    private readonly libraryService: LibraryService,
+    private readonly imageFactory: ImageFactory
+  ) { }
 
   @Post('create')
   create(@Body() library: Partial<Library>) {
@@ -78,15 +86,32 @@ export class LibraryController {
     return this.libraryService.approveAccess(requestId, response);
   }
   
-  // @Post(':id/thumbnail')
-  // async updateThumbnail(
-  //   @Param('id') userId: number,
-  //   @Body('thumbnail') thumbnailUrl: string,
-  // ): Promise<User> {
-  //   if (!thumbnailUrl) {
-  //     throw new BadRequestException('Thumbnail URL is required');
-  //   }
-  //   return this.userService.updateUserThumbnail(userId, thumbnailUrl);
-  // }
+  @Post(':libraryId/thumbnail')
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  async updateThumbnail(
+    @Param('libraryId') libraryId: number,
+    @UploadedFile() thumbnail: Express.Multer.File,
+  ): Promise<Library> {
+    if (!thumbnail) {
+      throw new BadRequestException('Thumbnail URL is required');
+    }
+    if(libraryId === null || libraryId === undefined) {
+      throw new BadRequestException('User ID is required');
+    }
+
+    // Save image to Cloudinary
+    const publicUrl = await this.imageFactory.saveImage(
+      'library_thumbnail',
+      thumbnail,
+    );
+    // Update the user's thumbnail URL in the database
+    console.log("updatedUser", {id: Number(libraryId), url: publicUrl, thumbnail: thumbnail});
+    
+    const updatedLibrary = await this.libraryService.updateLibraryThumbnail(libraryId, publicUrl);
+    if (!updatedLibrary) {
+      throw new BadRequestException('Failed to update library thumbnail.');
+    }
+    return updatedLibrary;
+  }
   
 }

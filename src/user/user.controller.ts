@@ -71,12 +71,10 @@ export class UserController {
       thumbnail,
     );
 
-    // Update the user's thumbnail URL in the database
-    console.log("updatedUser", {id: Number(userId), url: publicUrl, thumbnail: thumbnail});
     const updatedUser = await this.userService.updateThumbnail(Number(userId), publicUrl);
     return {
       message: 'Thumbnail updated successfully',
-      data: "updatedUser",
+      data: updatedUser,
     };
   }
 }

@@ -14,7 +14,7 @@ export class CloudinaryService {
     });
   }
 
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(file: Express.Multer.File, imageFile: string): Promise<string> {
     try {
       // Convert the file buffer to base64
       const base64String = Buffer.from(file.buffer).toString('base64');
@@ -23,7 +23,7 @@ export class CloudinaryService {
       const result = await cloudinary.v2.uploader.upload(dataURI, {
         resource_type: "auto",
         public_id: `user_${Date.now()}`, // Generate unique ID
-        folder: 'user_thumbnails',
+        folder: `${imageFile}`,
       });
       
       return result.secure_url;
