@@ -30,6 +30,12 @@ export class LibraryController {
     return this.libraryService.create(library);
   }
 
+  // @UseGuards(AuthGuard)
+  @Get("all")
+  findAllLibraries() {
+    return this.libraryService.findAll();
+  }
+
   @UseGuards(AuthGuard)
   @Get()
   findAll(@Query('name') name: string) {

@@ -187,7 +187,7 @@ export class LibraryService {
       });
 
       if (!access || access.length === 0) {
-        throw new NotFoundException(`No library requests found for user with ID ${userId}`);
+        console.error(`No library requests found for user with ID ${userId}`);
       }
 
       // Use Promise.all to resolve all async operations in the map
@@ -230,12 +230,12 @@ export class LibraryService {
           return extendedLibrary;
         })
       );
-
       return libraryRequests;
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to fetch library requests. Please try again later.'
+      throw new Error (
+        'Failed to fetch library requests. Please try again later.', error
       );
+      return []; // Return an empty array in case of an error
     }
   }
 

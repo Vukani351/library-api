@@ -45,23 +45,26 @@ export class BookService {
           user_id: userId,
         },
       });
-      const access = await this.libraryAccessModel.findAll({
-        where: {
-          library_id: libraryId,
-          user_id: userId,
-          status: 'approved',
-        },
-      });
+ 
+      if (!!library_owner) {
+        const access = await this.libraryAccessModel.findAll({
+          where: {
+            library_id: libraryId,
+            user_id: userId,
+            status: 'approved',
+          },
+        });
 
-      if (access.length === 0 && !!!library_owner) {
-        throw new BadRequestException('You do not have access to this library');
+        if (access.length === 0 && !!!library_owner) {
+          throw new BadRequestException('You do not have access to this library');
+        }
       }
-
       const books = await this.bookModel.findAll({
         where: { library_id: libraryId },
       });
       return books || [];
     } catch (error) {
+      console.error('Error in libraryCollection:', error);
       throw new InternalServerErrorException(
         'Could not fetch library collection',
         error,
