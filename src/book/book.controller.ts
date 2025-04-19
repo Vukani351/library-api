@@ -9,14 +9,21 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ImageFactory } from 'src/cloudinary/image.factory';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('book')
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(
+    private readonly bookService: BookService,
+    private readonly imageFactory: ImageFactory
+  ) { }
 
   @UseGuards(AuthGuard)
   @Get('library/:libraryId')
@@ -97,14 +104,20 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Put('thumbnail/:bookId')
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  @Post(':bookId/thumbnail')
   async updateThumbnail(
     @Param('bookId') bookId: number,
-    @Body('thumbnail') thumbnail: string,
+    @UploadedFile() thumbnail: Express.Multer.File,
   ): Promise<Book> {
     if (!thumbnail) {
-      throw new NotFoundException('Thumbnail URL is required');
+      throw new NotFoundException('Thumbnail is required'); 
     }
-    return this.bookService.updateThumbnail(bookId, thumbnail);
+    // Save image to Cloudinary
+    const publicUrl = await this.imageFactory.saveImage(
+      'book_thumbnail',
+      thumbnail,
+    );
+    return this.bookService.updateThumbnail(bookId, publicUrl);
   }
 }

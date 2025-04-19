@@ -111,7 +111,7 @@ export class LibraryController {
       thumbnail,
     );
 
-    // Update the user's thumbnail URL in the database
+    // Update the library's thumbnail URL in the database
     const updatedLibrary = await this.libraryService.updateLibraryThumbnail(libraryId, publicUrl);
     if (!updatedLibrary) {
       throw new BadRequestException('Failed to update library thumbnail.');

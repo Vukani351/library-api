@@ -8,6 +8,8 @@ import { jwtConstants } from 'src/constants/jwtConstants';
 import { BookRequest } from 'src/models/book-access.model';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
+import { ImageFactory } from 'src/cloudinary/image.factory';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { Library } from 'src/models/library.model';
       secret: jwtConstants.secret,
     }),
   ],
-  providers: [BookService],
   controllers: [BookController],
+  providers: [BookService, CloudinaryService, ImageFactory],
 })
 export class BookModule {}

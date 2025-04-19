@@ -8,15 +8,18 @@ export class ImageFactory {
   ) {}
 
   async saveImage(imageType: string, file: Express.Multer.File): Promise<string> {
-    switch (imageType) {
+    return this.uploadThumbnail(imageType, file);
+    /*switch (imageType) {
       case 'user_thumbnail':
         return this.uploadThumbnail(imageType, file);
       case 'library_thumbnail':
         return this.uploadThumbnail(imageType, file);
+      case 'book_thumbnail':
+        return this.uploadThumbnail(imageType, file);
       // Add other image types like 'book_thumbnail', 'note_image', etc.
       default:
         throw new Error('Unsupported image type');
-    }
+    } */
   }
 
   async uploadThumbnail(imageType: string, file: Express.Multer.File): Promise<string> {

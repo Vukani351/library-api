@@ -207,26 +207,25 @@ export class BookService {
     }
   }
 
-  async updateThumbnail(bookId: number, thumbnail: string): Promise<Book|any> {
+  async updateThumbnail(bookId: number, thumbnail: string): Promise<Book | any> {
     // Check if the book exists
-  //   const book = await this.bookModel.findByPk(bookId);
-  //   if (!book) {
-  //     throw new NotFoundException(`Book with id ${bookId} not found`);
-  //   }
-  //   /*
-  //   * todo:
-  //  * add l;logic to update thumbnail from the cloudify shandic
-  //  */
+    const book = await this.bookModel.findByPk(bookId);
+    if (!book) {
+      throw new NotFoundException(`Book with id ${bookId} not found`);
+    }
+    /*
+      * todo:
+      * add l;logic to update thumbnail from the cloudify shandic
+    */
 
-  //   // Update the thumbnail field using the update method
-  //   await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
+    await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
+      
+    // Fetch and return the updated book record
+    const updatedBook = await this.bookModel.findByPk(bookId);
+    if (!updatedBook) {
+      throw new InternalServerErrorException('Unable to retrieve the updated book');
+    }
     
-  //   // Fetch and return the updated book record
-  //   const updatedBook = await this.bookModel.findByPk(bookId);
-  //   if (!updatedBook) {
-  //     throw new InternalServerErrorException('Unable to retrieve the updated book');
-  //   }
-    
-    return "updatedBook";
+    return updatedBook;
   }
 }
