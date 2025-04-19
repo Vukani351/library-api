@@ -164,7 +164,7 @@ export class LibraryService {
           const { name, email } = await this.getUserById(libJson.user_id).then(data => {
             return data.toJSON();
           });
-          return { ...libJson, user_data: { name, email } };
+          return { ...libJson, ...{ name, email } };
         }),
       );
 
@@ -232,8 +232,8 @@ export class LibraryService {
       );
       return libraryRequests;
     } catch (error) {
-      throw new Error (
-        'Failed to fetch library requests. Please try again later.', error
+      console.error (
+        error
       );
       return []; // Return an empty array in case of an error
     }
@@ -263,7 +263,8 @@ export class LibraryService {
      
      return await this.libraryModel.findByPk(libraryId);
    } catch (error) {
-      throw new InternalServerErrorException('Failed to update library thumbnail:\n', error);
+     console.error('Failed to update library thumbnail:\n', error);
+     return null
    }
   }
 }
