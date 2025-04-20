@@ -71,6 +71,7 @@ export class LibraryService {
         name: 'Home Library',
         description: 'My Home Library',
       });
+
       const lib_requests = this.getUserLibraryRequests(userId);
       const libraryClone = library ? { ...(await library).toJSON(), requests: lib_requests } : null;
       return libraryClone;
@@ -136,7 +137,7 @@ export class LibraryService {
 
     await this.libraryAccessModel.update(
       {
-        status: response === 'approved'? 'approved': 'denied',
+        status: response == 'approved'? 'approved': 'rejected',
         approved_at: new Date()
       },
       { where: { id: requestId } },

@@ -33,11 +33,11 @@ export class BookService {
         throw new Error('Token not found');
       }
 
-      const payload = await this.jwtService.verifyAsync(token, {
+      const userId = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
+      }).then(d => d.id).catch((err) => {
+        console.error('Error verifying token:', err);
       });
-
-      const userId = payload.id;
 
       const library_owner = await this.libraryModel.findOne({
         where: {
@@ -46,8 +46,8 @@ export class BookService {
         },
       });
  
-      if (!!library_owner) {
-        const access = await this.libraryAccessModel.findAll({
+      if (!library_owner) {
+        const access = await this.libraryAccessModel.findOne({
           where: {
             library_id: libraryId,
             user_id: userId,
@@ -55,12 +55,19 @@ export class BookService {
           },
         });
 
-        if (access.length === 0 && !!!library_owner) {
+        if (access) {
+          return this.bookModel.findAll({
+            where: { library_id: libraryId },
+          });
+        }
+
+        if (!access && !!!library_owner) {
           throw new BadRequestException('You do not have access to this library');
         }
       }
+
       const books = await this.bookModel.findAll({
-        where: { library_id: libraryId },
+        where: { library_id: libraryId, owner_id: userId },
       });
       return books || [];
     } catch (error) {
