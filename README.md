@@ -265,3 +265,4 @@ Modify the `bootstrap` function to include migrations:
 - deploy this to AWS [x]
 - Add logic for DTO's []
 - use Dto []
+- add logic to track that user has already borrowed the book - borrow buttons should not show

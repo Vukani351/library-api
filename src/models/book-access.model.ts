@@ -1,4 +1,4 @@
-// change this name to book-access.model.ts
+// change this name to book-borrow-request.model.ts
 import {
   Table,
   Column,
@@ -8,6 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from './user.model';
 import { Book } from './book.model';
+import { Library } from './library.model';
 
 @Table({ tableName: 'book_access' })
 export class BookRequest extends Model<BookRequest> {
@@ -24,7 +25,7 @@ export class BookRequest extends Model<BookRequest> {
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  book_id: number;
+  declare book_id: number;
 
   @ForeignKey(() => User)
   @Column({
@@ -32,7 +33,7 @@ export class BookRequest extends Model<BookRequest> {
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  borrower_id: number;
+  declare borrower_id: number;
 
   @ForeignKey(() => User)
   @Column({
@@ -40,23 +41,31 @@ export class BookRequest extends Model<BookRequest> {
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  owner_id: number;
+  declare owner_id: number;
+
+  @ForeignKey(() => Library)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    onDelete: 'CASCADE',
+  })
+  declare library_id: number;
 
   @Column({
     type: DataType.ENUM('pending', 'approved', 'rejected'),
     defaultValue: 'pending',
   })
-  status: 'pending' | 'approved' | 'rejected';
+  declare status: 'pending' | 'approved' | 'rejected';
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  approved_at: Date;
+  declare approved_at: Date;
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  return_by_date: Date;
+  declare return_by_date: Date;
 }

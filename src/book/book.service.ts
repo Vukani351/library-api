@@ -11,6 +11,7 @@ import { BookRequest } from 'src/models/book-access.model';
 import { JwtService } from '@nestjs/jwt';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
+import { User } from 'src/models/user.model';
 
 @Injectable()
 export class BookService {
@@ -22,6 +23,8 @@ export class BookService {
     private libraryAccessModel: typeof LibraryAccess,
     @InjectModel(Library)
     private libraryModel: typeof Library,
+    @InjectModel(User)
+    private userModel: typeof User,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -117,16 +120,16 @@ export class BookService {
       throw new NotFoundException('Book not found');
     }
     if (book.is_private) {
-      console.log('BOOK', !book.is_private, bookId, borrowerId);
       throw new BadRequestException('Book is not available for borrowing');
     }
-
+    
     // Check if request already exists
     const existingRequest = await this.bookRequestModel.findOne({
       where: { book_id: bookId, borrower_id: borrowerId, status: 'pending' },
     });
 
     if (existingRequest) {
+      // this could be a message, not an error.
       throw new BadRequestException(
         'You have already requested to borrow this book',
       );
@@ -136,31 +139,65 @@ export class BookService {
       book_id: bookId,
       borrower_id: borrowerId,
       owner_id: book.owner_id,
+      library_id: book.library_id,
       return_by_date: returnByDate,
       status: 'pending',
     } as BookRequest);
   }
 
-  async approveBorrow(requestId: number) {
-    const request = await this.bookRequestModel.findByPk(requestId);
-    if (!request) {
-      throw new NotFoundException('Borrow request not found');
+  async respondToBorrow(requestId: number, response: string) {
+    try {
+      // Fetch the borrow request
+      const request = await this.bookRequestModel.findByPk(requestId);
+      if (!request) {
+        throw new NotFoundException('Borrow request not found');
+      }
+
+      // Fetch the book associated with the request
+      const book = await this.bookModel.findByPk(request.book_id);
+      if (!book) {
+        throw new NotFoundException('Book not found');
+      }
+
+      if (response === 'approved') {
+        // Update the book's borrower and status
+        await this.bookModel.update(
+          {
+            borrower_id: request.borrower_id,
+            status: 'active',
+            return_by_date: request.return_by_date,
+          },
+          { where: { id: request.book_id } }
+        );
+
+        // Update the request's status and approval date
+        await this.bookRequestModel.update(
+          {
+            status: 'approved',
+            approved_at: new Date(),
+          },
+          { where: { id: requestId } }
+        );
+      } else if (response === 'rejected') {
+        // Update the request's status to rejected
+        await this.bookRequestModel.update(
+          {
+            status: 'rejected',
+            approved_at: new Date(),
+          },
+          { where: { id: requestId } }
+        );
+      }
+
+      // Fetch and return the updated request
+      const updatedRequest = await this.bookRequestModel.findByPk(requestId);
+      return updatedRequest;
+    } catch (error) {
+      console.error('Error in respondToBorrow:', error);
+      throw new InternalServerErrorException(
+        'An error occurred while responding to the borrow request'
+      );
     }
-
-    // Update the book status
-    const book = await this.bookModel.findByPk(request.book_id);
-    if (!book) {
-      throw new NotFoundException('Book not found');
-    }
-
-    book.borrower_id = request.borrower_id;
-    book.status = 'borrowed';
-    book.return_by_date = request.return_by_date;
-    await book.save();
-
-    request.status = 'approved';
-    request.approved_at = new Date();
-    return request.save();
   }
 
   async getBorrowRequests(ownerId: number) {
@@ -181,19 +218,45 @@ export class BookService {
        );
     }
   }
+
   async getLibraryBorrowRequests(bookId: number) {
     try {
-      const book_request = await BookRequest.findAll({
+      // Log the bookId being passed
+      console.log('Fetching borrow requests for bookId:', bookId);
+
+      // Fetch all borrow requests for the given book ID
+      const bookRequests = await this.bookRequestModel.findAll({
         where: { book_id: bookId },
       });
-      if (!book_request || book_request.length === 0) {
-        throw new NotFoundException(
-          'No borrow requests found for this library',
-        );
+
+      if (!bookRequests || bookRequests.length === 0) {
+        throw new NotFoundException('No borrow requests found for this library');
       }
-      return book_request;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+      // Fetch user details for each borrow request
+      const enrichedRequests = await Promise.all(
+        bookRequests.map(async (request) => {
+
+          const user = await this.userModel.findOne({
+            where: { id: request.borrower_id },
+          });
+
+          return {
+            ...request.toJSON(),
+            name: user?.toJSON().name || null,
+            email: user?.toJSON().email || null,
+          };
+        }),
+      );
+
+      // Log the enriched requests
+      console.log('Enriched Requests:', enrichedRequests);
+
+      return enrichedRequests;
     } catch (error) {
+      // Log the error for debugging
+      console.error('Error in getLibraryBorrowRequests:', error);
+
       throw new InternalServerErrorException(
         'An error occurred while retrieving borrow requests for the library',
       );

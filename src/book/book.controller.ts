@@ -72,13 +72,20 @@ export class BookController {
     @Body('borrowerId') borrowerId: number,
     @Body('returnByDate') returnByDate: Date,
   ) {
+    // console.log({ bookId: bookId, borrowerId: borrowerId, returnByDate: returnByDate }); return [123, 456, 789];
     return this.bookService.requestBorrow(bookId, borrowerId, returnByDate);
   }
 
   @UseGuards(AuthGuard)
   @Post('borrow/:requestId/approve')
   async approveBorrow(@Param('requestId') requestId: number) {
-    return this.bookService.approveBorrow(requestId);
+    return this.bookService.respondToBorrow(requestId, "approved");
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('borrow/:requestId/reject')
+  async rejectBorrow(@Param('requestId') requestId: number) {
+    return this.bookService.respondToBorrow(requestId, "rejected");
   }
 
   @UseGuards(AuthGuard)
