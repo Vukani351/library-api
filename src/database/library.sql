@@ -70,6 +70,24 @@ CREATE TABLE IF NOT EXISTS book_access (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+CREATE TABLE book_handovers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT NOT NULL,
+    lender_id INT NOT NULL,
+    borrower_id INT NOT NULL,
+    meeting_location VARCHAR(255),
+    meeting_date DATE,
+    meeting_time TIME,
+    handover_confirmed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (book_id) REFERENCES book(id),
+    FOREIGN KEY (lender_id) REFERENCES user(id),
+    FOREIGN KEY (borrower_id) REFERENCES user(id)
+);
+
+
 -- Insert a new user
 INSERT INTO user (name, email, password, status)
 VALUES ('Nash Bell', 'nash4253@gmail.com', 'password123', "active");
