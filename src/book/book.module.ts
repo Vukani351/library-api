@@ -11,10 +11,11 @@ import { Library } from 'src/models/library.model';
 import { ImageFactory } from 'src/cloudinary/image.factory';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User } from 'src/models/user.model';
+import { BookHandover } from 'src/models/book-handover.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Book, BookRequest, LibraryAccess, Library, User]),
+    SequelizeModule.forFeature([Book, BookRequest, LibraryAccess, Library, User, BookHandover]),
     JwtModule.register({
       secret: jwtConstants.secret,
     }),

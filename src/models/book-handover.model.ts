@@ -63,6 +63,22 @@ export class BookHandover extends Model<BookHandover> {
   declare handover_confirmed: boolean;
 
   @Column({
+    type: DataType.ENUM('pending', 'approved', 'rejected'),
+    allowNull: false,
+    defaultValue: 'pending',
+  })
+  declare handover_status: 'pending' | 'approved' | 'rejected';
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    validate: {
+      len: [10, 10], // Ensure it's a 10-digit number
+    },
+  })
+  declare borrower_phone_number: string;
+
+  @Column({
     type: DataType.DATE,
     allowNull: false,
     defaultValue: DataType.NOW,

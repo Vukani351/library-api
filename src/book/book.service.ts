@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
 import { User } from 'src/models/user.model';
+import { BookHandover } from 'src/models/book-handover.model';
 
 @Injectable()
 export class BookService {
@@ -25,6 +26,8 @@ export class BookService {
     private libraryModel: typeof Library,
     @InjectModel(User)
     private userModel: typeof User,
+    @InjectModel(BookHandover)
+    private bookHandoverModel: typeof BookHandover,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -221,9 +224,6 @@ export class BookService {
 
   async getLibraryBorrowRequests(bookId: number) {
     try {
-      // Log the bookId being passed
-      console.log('Fetching borrow requests for bookId:', bookId);
-
       // Fetch all borrow requests for the given book ID
       const bookRequests = await this.bookRequestModel.findAll({
         where: { book_id: bookId },
@@ -236,7 +236,6 @@ export class BookService {
       // Fetch user details for each borrow request
       const enrichedRequests = await Promise.all(
         bookRequests.map(async (request) => {
-
           const user = await this.userModel.findOne({
             where: { id: request.borrower_id },
           });
@@ -248,9 +247,6 @@ export class BookService {
           };
         }),
       );
-
-      // Log the enriched requests
-      console.log('Enriched Requests:', enrichedRequests);
 
       return enrichedRequests;
     } catch (error) {
@@ -287,7 +283,6 @@ export class BookService {
       * todo:
       * add l;logic to update thumbnail from the cloudify shandic
     */
-
     await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
       
     // Fetch and return the updated book record
@@ -297,5 +292,73 @@ export class BookService {
     }
     
     return updatedBook;
+  }
+
+  /*
+  * TODO:
+  * create a typefor this DTO:
+  */
+  async createBookHandover(handoverDetails: {
+    book_id: number;
+    lender_id: number;
+    borrower_id: number;
+    meeting_location: string;
+    meeting_date: Date;
+    meeting_time: string;
+    borrower_phone_number: string,
+  }) {
+    try {
+      // Check if the book exists
+      const book = await this.bookModel.findByPk(handoverDetails.book_id);
+      if (!book) {
+        throw new NotFoundException('Book not found');
+      }
+
+      // Check if the lender is the owner of the book
+      if (book.toJSON().owner_id !== handoverDetails.lender_id) {
+        throw new BadRequestException('Lender is not the owner of the book');
+      }
+
+      // Create the book handover record
+      const handover = await this.bookHandoverModel.create({
+        handover_confirmed: false,
+        book_id: handoverDetails.book_id,
+        lender_id: handoverDetails.lender_id,
+        borrower_id: handoverDetails.borrower_id,
+        meeting_time: handoverDetails.meeting_time,
+        meeting_date: handoverDetails.meeting_date,
+        meeting_location: handoverDetails.meeting_location,
+        borrower_phone_number: handoverDetails.borrower_phone_number,
+      } as BookHandover);
+
+      return handover;
+    } catch (error) {
+      console.error('Error in createBookHandover:', error);
+      throw new InternalServerErrorException(
+        'An error occurred while creating the book handover',
+      );
+    }
+  }
+/*
+* TODO:
+* ensure that user has one request for book eath time */
+  async getBookHandoverByBookId(bookId: number) {
+    try {
+      // Fetch the handover record for the given book ID
+      const handover = await this.bookHandoverModel.findOne({
+        where: { book_id: bookId },
+      });
+
+      if (!handover) {
+        throw new NotFoundException(`Handover record for bookId ${bookId} not found`);
+      }
+
+      return handover;
+    } catch (error) {
+      console.error('Error in getBookHandoverByBookId:', error);
+      throw new InternalServerErrorException(
+        'An error occurred while fetching the handover record',
+      );
+    }
   }
 }

@@ -127,4 +127,32 @@ export class BookController {
     );
     return this.bookService.updateThumbnail(bookId, publicUrl);
   }
+
+  @UseGuards(AuthGuard)
+  @Post(':bookId/handover')
+  async createBookHandover(
+    @Param('bookId') bookId: number,
+    @Body('lenderId') lenderId: number,
+    @Body('borrowerId') borrowerId: number,
+    @Body('meetingLocation') meetingLocation: string,
+    @Body('meetingDate') meetingDate: Date,
+    @Body('meetingTime') meetingTime: string,
+    @Body('borrowerPhoneNumber') borrowerPhoneNumber: string,
+  ) {
+    return this.bookService.createBookHandover({
+      book_id: bookId,
+      lender_id: lenderId,
+      borrower_id: borrowerId,
+      meeting_date: meetingDate,
+      meeting_time: meetingTime,
+      meeting_location: meetingLocation,
+      borrower_phone_number: borrowerPhoneNumber,
+    });
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':bookId/handover')
+  async getBookHandover(@Param('bookId') bookId: number) {
+    return this.bookService.getBookHandoverByBookId(bookId);
+  }
 }
