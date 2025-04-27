@@ -73,10 +73,19 @@ export class BookHandover extends Model<BookHandover> {
     type: DataType.STRING,
     allowNull: true,
     validate: {
-      len: [10, 10], // Ensure it's a 10-digit number
+      len: [10, 10],
     },
   })
   declare borrower_phone_number: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    validate: {
+      len: [10, 10],
+    },
+  })
+  declare lender_phone_number: string;
 
   @Column({
     type: DataType.DATE,

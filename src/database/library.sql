@@ -78,6 +78,7 @@ CREATE TABLE book_handovers (
     meeting_location VARCHAR(255),
     meeting_date DATE,
     meeting_time TIME,
+    handover_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     handover_confirmed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -86,7 +87,6 @@ CREATE TABLE book_handovers (
     FOREIGN KEY (lender_id) REFERENCES user(id),
     FOREIGN KEY (borrower_id) REFERENCES user(id)
 );
-
 
 -- Insert a new user
 INSERT INTO user (name, email, password, status)

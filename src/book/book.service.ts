@@ -274,14 +274,13 @@ export class BookService {
   }
 
   async updateThumbnail(bookId: number, thumbnail: string): Promise<Book | any> {
-    // Check if the book exists
     const book = await this.bookModel.findByPk(bookId);
     if (!book) {
       throw new NotFoundException(`Book with id ${bookId} not found`);
     }
     /*
       * todo:
-      * add l;logic to update thumbnail from the cloudify shandic
+      * add logic to update thumbnail from the cloudify shandic
     */
     await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
       
@@ -306,20 +305,40 @@ export class BookService {
     meeting_date: Date;
     meeting_time: string;
     borrower_phone_number: string,
+    lender_phone_number: string,
   }) {
     try {
-      // Check if the book exists
       const book = await this.bookModel.findByPk(handoverDetails.book_id);
       if (!book) {
         throw new NotFoundException('Book not found');
       }
 
-      // Check if the lender is the owner of the book
       if (book.toJSON().owner_id !== handoverDetails.lender_id) {
         throw new BadRequestException('Lender is not the owner of the book');
       }
 
-      // Create the book handover record
+      // Check if a handover record already exists for the given book_id, borrower_id, and lender_id
+      const existingHandover = await this.bookHandoverModel.findOne({
+        where: {
+          book_id: handoverDetails.book_id,
+          borrower_id: handoverDetails.borrower_id,
+          lender_id: handoverDetails.lender_id,
+        },
+      });
+      
+      if (existingHandover) {
+        // Update the existing handover record
+        await existingHandover.update({
+          meeting_time: handoverDetails.meeting_time,
+          meeting_date: handoverDetails.meeting_date,
+          meeting_location: handoverDetails.meeting_location,
+          borrower_phone_number: handoverDetails.borrower_phone_number,
+          lender_phone_number: handoverDetails.lender_phone_number,
+        });
+
+        return existingHandover;
+      }
+
       const handover = await this.bookHandoverModel.create({
         handover_confirmed: false,
         book_id: handoverDetails.book_id,
@@ -329,6 +348,7 @@ export class BookService {
         meeting_date: handoverDetails.meeting_date,
         meeting_location: handoverDetails.meeting_location,
         borrower_phone_number: handoverDetails.borrower_phone_number,
+        lender_phone_number: handoverDetails.lender_phone_number,
       } as BookHandover);
 
       return handover;
@@ -339,9 +359,11 @@ export class BookService {
       );
     }
   }
-/*
-* TODO:
-* ensure that user has one request for book eath time */
+
+  /*
+    * TODO:
+    * ensure that user has one request for book eath time
+  */
   async getBookHandoverByBookId(bookId: number) {
     try {
       // Fetch the handover record for the given book ID

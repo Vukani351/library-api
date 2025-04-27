@@ -132,12 +132,13 @@ export class BookController {
   @Post(':bookId/handover')
   async createBookHandover(
     @Param('bookId') bookId: number,
-    @Body('lenderId') lenderId: number,
-    @Body('borrowerId') borrowerId: number,
-    @Body('meetingLocation') meetingLocation: string,
-    @Body('meetingDate') meetingDate: Date,
-    @Body('meetingTime') meetingTime: string,
-    @Body('borrowerPhoneNumber') borrowerPhoneNumber: string,
+    @Body('lender_id') lenderId: number,
+    @Body('borrower_id') borrowerId: number,
+    @Body('meeting_location') meetingLocation: string,
+    @Body('meeting_date') meetingDate: Date,
+    @Body('meeting_time') meetingTime: string,
+    @Body('borrower_phone_number') borrowerPhoneNumber: string,
+    @Body('lender_phone_number') lenderPhoneNumber: string,
   ) {
     return this.bookService.createBookHandover({
       book_id: bookId,
@@ -147,6 +148,7 @@ export class BookController {
       meeting_time: meetingTime,
       meeting_location: meetingLocation,
       borrower_phone_number: borrowerPhoneNumber,
+      lender_phone_number: lenderPhoneNumber,
     });
   }
 
