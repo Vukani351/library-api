@@ -32,11 +32,11 @@ export class User extends Model<User> {
     type: DataType.STRING(255),
     allowNull: true,
   })
-  address: string; // New column for address
+  address: string;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: true,
   })
-  thumbnail: string; // New column for thumbnail
+  thumbnail: string;
 }

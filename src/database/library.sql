@@ -7,11 +7,14 @@ USE library_db;
 -- Create the `user` table
 CREATE TABLE IF NOT EXISTS user (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  thumbnail TEXT,
   name VARCHAR(100) NOT NULL,
+  thumbnail TEXT,
   password VARCHAR(255) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
-  status VARCHAR(100) NOT NULL
+  status VARCHAR(100) NOT NULL,
+  address VARCHAR(255),
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the `library` table
@@ -19,9 +22,12 @@ CREATE TABLE IF NOT EXISTS library (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  is_private INT DEFAULT 0,
   user_id INT NOT NULL,
+  thumbnail TEXT,
+  is_private INT DEFAULT 0,
   status VARCHAR(100) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
@@ -33,12 +39,14 @@ CREATE TABLE IF NOT EXISTS book (
   thumbnail TEXT,
   description TEXT,
   owner_id INT NOT NULL,
-  borrower_id INT,
   library_id INT,
+  borrower_id INT,
   is_private INT DEFAULT 0,
   borrowed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   return_by_date TIMESTAMP,
   status VARCHAR(100) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
@@ -51,6 +59,8 @@ CREATE TABLE IF NOT EXISTS library_access (
   status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
   requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   approved_at TIMESTAMP NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
@@ -61,10 +71,13 @@ CREATE TABLE IF NOT EXISTS book_access (
   book_id INT NOT NULL,
   borrower_id INT NOT NULL,
   owner_id INT NOT NULL,
+  library_id INT NOT NULL,
   status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
   requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   approved_at TIMESTAMP,
   return_by_date TIMESTAMP,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   FOREIGN KEY (book_id) REFERENCES book(id) ON DELETE CASCADE,
   FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
@@ -80,22 +93,29 @@ CREATE TABLE book_handovers (
     meeting_time TIME,
     handover_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     handover_confirmed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+    borrower_phone_number VARCHAR(10),
+    lender_phone_number VARCHAR(10),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (book_id) REFERENCES book(id),
     FOREIGN KEY (lender_id) REFERENCES user(id),
     FOREIGN KEY (borrower_id) REFERENCES user(id)
 );
 
 -- Insert a new user
-INSERT INTO user (name, email, password, status)
-VALUES ('Nash Bell', 'nash4253@gmail.com', 'password123', "active");
+INSERT INTO user (name, email, password, status, address, thumbnail)
+VALUES 
+('John Doe', 'john.doe@example.com', 'password123', 'active', '123 Main St, Springfield', 'https://example.com/john-thumbnail.jpg'),
+('Jane Smith', 'jane.smith@example.com', 'password456', 'active', '456 Elm St, Springfield', 'https://example.com/jane-thumbnail.jpg');
 
 -- Insert a new library
-INSERT INTO library (name, description, status, user_id, is_private)
-VALUES ('Central Library', "This is the main library", "inactive", 1, 0);
+INSERT INTO library (name, description, status, user_id, is_private, thumbnail)
+VALUES 
+('Central Library', 'This is the main library', 'active', 1, 0, 'https://example.com/central-library-thumbnail.jpg'),
+('Community Library', 'A small community library', 'active', 2, 1, 'https://example.com/community-library-thumbnail.jpg');
 
 -- Insert a new book
-INSERT INTO book (title, author, description, library_id, owner_id)
-VALUES ('The Great Gatsby', 'F. Scott Fitzgerald', "This is the first book", 1, 1);
+INSERT INTO book (title, author, description, library_id, owner_id, status, is_private, thumbnail)
+VALUES 
+('The Great Gatsby', 'F. Scott Fitzgerald', 'A classic novel set in the Jazz Age', 1, 1, 'available', 0, 'https://example.com/gatsby-thumbnail.jpg'),
+('To Kill a Mockingbird', 'Harper Lee', 'A novel about racial injustice in the Deep South', 2, 2, 'available', 1, 'https://example.com/mockingbird-thumbnail.jpg');
