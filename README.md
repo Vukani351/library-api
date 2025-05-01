@@ -264,5 +264,5 @@ Modify the `bootstrap` function to include migrations:
 - add docker-compose file for running mysql, PHPMyAdmin & nodejs smne time.[0]
 - deploy this to AWS [x]
 - Add logic for DTO's []
-- use Dto []
+- use Dto [] 
 - add logic to track that user has already borrowed the book - borrow buttons should not show
