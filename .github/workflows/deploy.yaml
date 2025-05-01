@@ -10,51 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
-
-      - name: Deploy to EC2
+      - name: Log into EC2 and create test.log
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Stop Caddy first
-            echo "Stopping Caddy server..."
-            sudo systemctl stop caddy || echo "Caddy might not be running"
+            # Navigate to the home directory
+            cd ~
 
-            # Navigate to project directory
-            cd /path/to/your/app
+            # Create a test.log file
+            echo "This is a test log file created by GitHub Actions" > test.log
 
-            # Pull latest changes
-            echo "Pulling latest code..."
-            git pull origin main
-
-            # Install dependencies
-            echo "Installing dependencies..."
-            npm install --production
-
-            # Run database migrations
-            echo "Running database migrations..."
-            npm run migrate:prod
-
-            # Build the project (if needed)
-            echo "Building project..."
-            npm run build
-
-            # Restart your application
-            echo "Restarting application..."
-            pm2 restart your-app-name || pm2 start dist/main.js --name your-app-name
-
-            # Start Caddy again
-            echo "Starting Caddy server..."
-            sudo systemctl start caddy
-
-            # Verify services are running
-            echo "Current status:"
-            sudo systemctl status caddy --no-pager || true
-            pm2 status || true
+            # Verify the file was created
+            ls -l test.log
