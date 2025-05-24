@@ -1,5 +1,5 @@
 -- Create the database
-CREATE DATABASE IF NOT EXISTS library_db;
+CREATE DATABASE IF NOT EXISTS test_library_db;
 
 -- Use the database
 USE library_db;
@@ -24,10 +24,11 @@ CREATE TABLE IF NOT EXISTS library (
   description TEXT,
   user_id INT NOT NULL,
   thumbnail TEXT,
+  address VARCHAR(255),
   is_private INT DEFAULT 0,
   status VARCHAR(100) NOT NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS book (
   return_by_date TIMESTAMP,
   status VARCHAR(100) NOT NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
@@ -60,7 +61,7 @@ CREATE TABLE IF NOT EXISTS library_access (
   requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   approved_at TIMESTAMP NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
@@ -77,13 +78,13 @@ CREATE TABLE IF NOT EXISTS book_access (
   approved_at TIMESTAMP,
   return_by_date TIMESTAMP,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (book_id) REFERENCES book(id) ON DELETE CASCADE,
   FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE book_handovers (
+CREATE TABLE IF NOT EXISTS book_handovers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     book_id INT NOT NULL,
     lender_id INT NOT NULL,
@@ -102,20 +103,14 @@ CREATE TABLE book_handovers (
     FOREIGN KEY (borrower_id) REFERENCES user(id)
 );
 
--- Insert a new user
-INSERT INTO user (name, email, password, status, address, thumbnail)
+-- Insert a new user with explicit ID's.
+INSERT INTO user (id, name, email, password, status, address, thumbnail)
 VALUES 
-('John Doe', 'john.doe@example.com', 'password123', 'active', '123 Main St, Springfield', 'https://example.com/john-thumbnail.jpg'),
-('Jane Smith', 'jane.smith@example.com', 'password456', 'active', '456 Elm St, Springfield', 'https://example.com/jane-thumbnail.jpg');
+(1, 'John Doe', 'john.doe@example.com', 'password123', 'active', '123 Main St, Springfield', 'https://example.com/john-thumbnail.jpg'),
+(2, 'Jane Smith', 'jane.smith@example.com', 'password456', 'active', '456 Elm St, Springfield', 'https://example.com/jane-thumbnail.jpg');
 
--- Insert a new library
+-- Insert a new library referencing those user IDs
 INSERT INTO library (name, description, status, user_id, is_private, thumbnail)
 VALUES 
 ('Central Library', 'This is the main library', 'active', 1, 0, 'https://example.com/central-library-thumbnail.jpg'),
 ('Community Library', 'A small community library', 'active', 2, 1, 'https://example.com/community-library-thumbnail.jpg');
-
--- Insert a new book
-INSERT INTO book (title, author, description, library_id, owner_id, status, is_private, thumbnail)
-VALUES 
-('The Great Gatsby', 'F. Scott Fitzgerald', 'A classic novel set in the Jazz Age', 1, 1, 'available', 0, 'https://example.com/gatsby-thumbnail.jpg'),
-('To Kill a Mockingbird', 'Harper Lee', 'A novel about racial injustice in the Deep South', 2, 2, 'available', 1, 'https://example.com/mockingbird-thumbnail.jpg');
