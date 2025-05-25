@@ -1,5 +1,5 @@
 -- Create the database
-CREATE DATABASE IF NOT EXISTS test_library_db;
+CREATE DATABASE IF NOT EXISTS library_db;
 
 -- Use the database
 USE library_db;
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS user (
   name VARCHAR(100) NOT NULL,
   thumbnail TEXT,
   password VARCHAR(255) NOT NULL,
-  email VARCHAR(100) NOT NULL UNIQUE,
+  email VARCHAR(100) NOT NULL UNIQUE, 
   status VARCHAR(100) NOT NULL,
   address VARCHAR(255),
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS book (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+-- Create the `library_access` table
 CREATE TABLE IF NOT EXISTS library_access (
   id INT AUTO_INCREMENT PRIMARY KEY,
   library_id INT NOT NULL,
@@ -67,6 +68,7 @@ CREATE TABLE IF NOT EXISTS library_access (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+-- Create the `book_access` table
 CREATE TABLE IF NOT EXISTS book_access (
   id INT AUTO_INCREMENT PRIMARY KEY,
   book_id INT NOT NULL,
@@ -84,26 +86,27 @@ CREATE TABLE IF NOT EXISTS book_access (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+-- Create the `book_handovers` table
 CREATE TABLE IF NOT EXISTS book_handovers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    book_id INT NOT NULL,
-    lender_id INT NOT NULL,
-    borrower_id INT NOT NULL,
-    meeting_location VARCHAR(255),
-    meeting_date DATE,
-    meeting_time TIME,
-    handover_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-    handover_confirmed BOOLEAN DEFAULT FALSE,
-    borrower_phone_number VARCHAR(10),
-    lender_phone_number VARCHAR(10),
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (book_id) REFERENCES book(id),
-    FOREIGN KEY (lender_id) REFERENCES user(id),
-    FOREIGN KEY (borrower_id) REFERENCES user(id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  book_id INT NOT NULL,
+  lender_id INT NOT NULL,
+  borrower_id INT NOT NULL,
+  meeting_location VARCHAR(255),
+  meeting_date DATE,
+  meeting_time TIME,
+  handover_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  handover_confirmed BOOLEAN DEFAULT FALSE,
+  borrower_phone_number VARCHAR(10),
+  lender_phone_number VARCHAR(10),
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (book_id) REFERENCES book(id),
+  FOREIGN KEY (lender_id) REFERENCES user(id),
+  FOREIGN KEY (borrower_id) REFERENCES user(id)
 );
 
--- Insert a new user with explicit ID's.
+-- Insert a new user with explicit IDs
 INSERT INTO user (id, name, email, password, status, address, thumbnail)
 VALUES 
 (1, 'John Doe', 'john.doe@example.com', 'password123', 'active', '123 Main St, Springfield', 'https://example.com/john-thumbnail.jpg'),

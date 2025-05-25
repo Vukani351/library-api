@@ -67,7 +67,7 @@ export class BookService {
           });
         }
 
-        if (!access && !!!library_owner) {
+        if (!access && !!library_owner) {
           throw new BadRequestException('You do not have access to this library');
         }
       }

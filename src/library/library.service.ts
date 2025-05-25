@@ -188,7 +188,7 @@ export class LibraryService {
       });
 
       if (!access || access.length === 0) {
-        console.error(`No library requests found for user with ID ${userId}`);
+        console.warn(`No library requests found for user with ID ${userId}`);
       }
 
       // Use Promise.all to resolve all async operations in the map

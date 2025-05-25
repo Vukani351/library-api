@@ -13,6 +13,9 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'mysql',
     migrationStorageTableName: 'sequelize_meta',
+    dialectOptions: {
+      multipleStatements: true     // ← allow your library.sql to run as one chunk
+    },
   },
   production: {
     username: process.env.DB_USER,
@@ -22,5 +25,8 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'mysql',
     migrationStorageTableName: 'sequelize_meta',
+    dialectOptions: {
+      multipleStatements: true     // ← allow your library.sql to run as one chunk
+    },
   }
 };
