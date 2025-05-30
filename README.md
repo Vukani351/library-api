@@ -20,7 +20,7 @@ Creating an application that will allow me to keep records of the books I have, 
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
 ### Frameworks and Libraries  
-![Fastify](https://img.shields.io/badge/Fastify-000000?style=for-the-badge&logo=fastify&logoColor=white)  
+![NestJS](https://docs.nestjs.com/assets/logo-small-gradient.svg)  
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)  
 ![Day.js](https://img.shields.io/badge/Day.js-FF5F00?style=for-the-badge&logo=javascript&logoColor=white)
 
@@ -59,16 +59,20 @@ Creating an application that will allow me to keep records of the books I have, 
    git clone https://github.com/your-repository-url.git
 ```
 2. Navigate to the project directory:  
-   ```bash
+```bash
    cd personal-library
-   ```
+```
 3. Install dependencies:  
-   ```bash
+```bash
    npm install
-   ```
+```
 4. Configure the environment variables in `.env`.
-
-5. Start the development server:
+5. Run the initial migration script:
+```shell
+   npm run db:init # runs only the new migrations
+```
+After running the command i do recommend you go check the database 'library_db' actually exists.
+6. Start the development server:
 
 ```bash
    npm run dev
@@ -85,7 +89,7 @@ Creating an application that will allow me to keep records of the books I have, 
 
 Here are some related projects:  
 
-- [Awesome README](https://github.com/matiassingers/awesome-readme)
+- [Front End Repo](https://github.com/Vukani351/bookeeper)
 
 ---
 
@@ -94,19 +98,22 @@ Here are some related projects:
 - [mysql Workbench](https://www.mysql.com/products/workbench/)
 - [Install My SQL](https://dev.mysql.com/downloads/installer/)
 - [Post Man](https://www.postman.com/)
+- [Nestjs route List (VS code extension)](https://marketplace.visualstudio.com/items?itemName=PedroAzevedo.nestjs-route-list)
 
 ---
 
 ## Resources:
 > This is a list of resources used for the project and links where they were found.
 
-- [Fastify Documentation](https://fastify.dev/docs/latest/Guides/Getting-Started/)  
-- [Fastify-MySQL Plugin](https://github.com/fastify/fastify-mysql)  
-- [Fastify-JWT Plugin](https://github.com/fastify/fastify-jwt)  
-- [Fastify-Swagger Plugin](https://github.com/fastify/fastify-swagger)  
+- [NestJS Documentation](https://docs.nestjs.com/first-steps)  
+- [Sequelize ORM Docs](https://sequelize.org/docs/v6/getting-started/)  
+- [Sequelize-MySQL Plugin](https://docs.nestjs.com/techniques/database)  
+- [NestJS-JWT Plugin](https://docs.nestjs.com/security/authentication#authentication)  
+- [NestJS-Swagger Plugin](https://github.com/fastify/fastify-swagger)  
 - [DayJS Library](https://github.com/iamkun/dayjs)
 - [Cloudinary Doc's](https://cloudinary.com/documentation/node_integration)
----
+
+-------
 
 ## Project Structure
 
@@ -149,7 +156,7 @@ personal-library/
 2. Generate a Migration:
 - Use Sequelize CLI to generate a migration file for the changes
 
-```shell
+```bash
    npx sequelize-cli migration:generate --name meaningful-migration-name
 ```
 

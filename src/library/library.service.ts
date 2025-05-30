@@ -100,28 +100,24 @@ export class LibraryService {
   }
 
   async requestAccess(userId: number, libraryId: number) {
-    // Check if the library exists
-    const library = await this.libraryModel.findByPk(libraryId);
-    if (!library) {
-      throw new NotFoundException('Library not found');
-    }
+    const libraryDetails = await this.fetchLibraryData(libraryId);
 
-    // Check if access request already exists
     const existingRequest = await this.libraryAccessModel.findOne({
       where: { user_id: userId, library_id: libraryId },
     });
 
     if (existingRequest) {
-      return existingRequest; // If request exists, return it
+      return existingRequest;
     }
-
-    // Create new access request
+    console.dir({ userId, libraryDetails }, { depth: null });
     return this.libraryAccessModel.create({
-      user_id: userId,
-      library_id: libraryId,
-      status: 'pending',
-    } as LibraryAccess);
-  }
+        user_id: userId,
+        library_id: libraryId,
+        owner_id: libraryDetails.user_id,
+        status: 'pending',
+        requested_at: new Date(),
+      });
+    }
 
   async approveAccess(requestId: number, response: string) {
     if (response === "" || !response) {
@@ -159,17 +155,21 @@ export class LibraryService {
         where: { library_id: libraryId },
       });
 
-      const library_requests = await Promise.all(
+      const libraryRequests = await Promise.all(
         requestedLibraries.map(async (library) => {
           const libJson = library.toJSON();
-          const { name, email } = await this.getUserById(libJson.user_id).then(data => {
+
+          const libraryDetails = await this.fetchLibraryData(libJson.library_id);
+
+          const { name, email } = await this.getUserById(libJson.user_id).then((data) => {
             return data.toJSON();
           });
+
           return { ...libJson, ...{ name, email } };
-        }),
+        })
       );
 
-      return library_requests;
+      return libraryRequests;
     } catch (error) {
       throw new Error('Sorry, there is an issue. Please try requesting library requests again.\n', error);
     }
@@ -182,7 +182,6 @@ export class LibraryService {
   */
   async getUserLibraryRequests(userId: number): Promise<any[]> {
     try {
-      // Fetch all library access requests for the user
       const access = await this.libraryAccessModel.findAll({
         where: { user_id: userId },
       });
@@ -191,7 +190,6 @@ export class LibraryService {
         console.warn(`No library requests found for user with ID ${userId}`);
       }
 
-      // Use Promise.all to resolve all async operations in the map
       const libraryRequests = await Promise.all(
         access.map(async (library) => {
           const libraryJson = library.toJSON();
@@ -202,23 +200,11 @@ export class LibraryService {
             throw new Error(`Invalid library_id for access record with ID ${libraryJson.id}`);
           }
 
-          // Fetch library data
-          const libraryData = await this.libraryModel.findOne({
-            where: { id: libraryJson.library_id },
-          });
+          const libraryDetails = await this.fetchLibraryData(libraryJson.library_id);
 
-          if (!libraryData) {
-            console.error(`Library not found for ID: ${libraryJson.library_id}`);
-            throw new NotFoundException(`Library with ID ${libraryJson.library_id} not found`);
-          }
-
-          const libraryDetails = libraryData.toJSON();
-
-          // Fetch user data for the library
           const userData = await this.getUserById(libraryDetails.user_id);
           const userJson = userData.toJSON();
 
-          // Combine library, user, and library name data
           const extendedLibrary = {
             ...libraryJson,
             library_name: libraryDetails.name,
@@ -231,15 +217,26 @@ export class LibraryService {
           return extendedLibrary;
         })
       );
+
       return libraryRequests;
     } catch (error) {
-      console.error (
-        error
-      );
-      return []; // Return an empty array in case of an error
+      console.error(error);
+      return [];
     }
   }
 
+  private async fetchLibraryData(libraryId: number): Promise<any> {
+    const libraryData = await this.libraryModel.findOne({
+      where: { id: libraryId },
+    });
+
+    if (!libraryData) {
+      console.error(`Library not found for ID: ${libraryId}`);
+      throw new NotFoundException(`Library with ID ${libraryId} not found`);
+    }
+
+    return libraryData.toJSON();
+  }
   async getUserById(id: number): Promise<User> {
     const user = (await this.UserModel.findByPk(id)) as User;
     if (!user) {
@@ -250,19 +247,17 @@ export class LibraryService {
 
   async updateLibraryThumbnail(libraryId: number, imageUrl: string): Promise<Library | null> {
    try {
-     // Check if the user exists
-     const library = await this.libraryModel.findByPk(libraryId);
-     if (!library) {
-       throw new NotFoundException(`Library with id ${libraryId} not found`);
-     }
+    const library = await this.libraryModel.findByPk(libraryId);
+    if (!library) {
+      throw new NotFoundException(`Library with id ${libraryId} not found`);
+    }
+    
+    await this.libraryModel.update(
+      { thumbnail: imageUrl },
+        { where: { id: libraryId } }
+    );
      
-     // Update the thumbnail field using the update method
-     await this.libraryModel.update(
-       { thumbnail: imageUrl },
-       { where: { id: libraryId } }
-     );
-     
-     return await this.libraryModel.findByPk(libraryId);
+    return await this.libraryModel.findByPk(libraryId);
    } catch (error) {
      console.error('Failed to update library thumbnail:\n', error);
      return null

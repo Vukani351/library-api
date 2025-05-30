@@ -34,7 +34,7 @@ export class LibraryController {
   @Get("all")
   findAllLibraries() {
     return this.libraryService.findAll();
-  }
+  } 
 
   @UseGuards(AuthGuard)
   @Get()
@@ -76,7 +76,7 @@ export class LibraryController {
   }
 
   @UseGuards(AuthGuard)
-  @Post(':userId/:libraryId/request')
+  @Post(':libraryId/:userId/request')
   requestAccess(
     @Param('userId') userId: number,
     @Param('libraryId') libraryId: number,
