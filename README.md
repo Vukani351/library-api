@@ -151,7 +151,7 @@ personal-library/
 
 ------
 1. Process for Handling Model Changes and Migrations
-- When a developer modifies or adds a model in the models directory, they should ensure the Sequelize model reflects the desired database schema.
+- When a developer modifies or adds a model in the models directory, they should ensure the Sequelize model reflects the desired database schema. I mean to say after seeing the need, simply generate the migration and abd run it, then add the item in the `database/library.sql` file so that when the next person initialises their DB they dont need to even run migrations.
 
 2. Generate a Migration:
 - Use Sequelize CLI to generate a migration file for the changes

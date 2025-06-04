@@ -86,7 +86,6 @@ CREATE TABLE IF NOT EXISTS book_access (
   FOREIGN KEY (owner_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
--- Create the `book_handovers` table
 CREATE TABLE IF NOT EXISTS book_handovers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   book_id INT NOT NULL,
@@ -98,12 +97,14 @@ CREATE TABLE IF NOT EXISTS book_handovers (
   handover_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
   handover_confirmed BOOLEAN DEFAULT FALSE,
   borrower_phone_number VARCHAR(10),
+  last_editor_id INT,
   lender_phone_number VARCHAR(10),
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (book_id) REFERENCES book(id),
   FOREIGN KEY (lender_id) REFERENCES user(id),
-  FOREIGN KEY (borrower_id) REFERENCES user(id)
+  FOREIGN KEY (borrower_id) REFERENCES user(id),
+  FOREIGN KEY (last_editor_id) REFERENCES user(id)
 );
 
 -- Insert a new user with explicit IDs
