@@ -139,6 +139,8 @@ export class BookController {
     @Body('meeting_time') meetingTime: string,
     @Body('borrower_phone_number') borrowerPhoneNumber: string,
     @Body('lender_phone_number') lenderPhoneNumber: string,
+    @Body('handover_status') handoverStatus: 'pending' | 'approved' | 'rejected',
+    @Body('handover_confirmed') handoverConfirmed: boolean,
   ) {
     return this.bookService.createBookHandover({
       book_id: bookId,
@@ -149,6 +151,8 @@ export class BookController {
       lastEditorId: lastEditorId,
       borrower_phone_number: borrowerPhoneNumber,
       lender_phone_number: lenderPhoneNumber,
+      handover_status: handoverStatus,
+      handover_confirmed: handoverConfirmed,
     });
   }
 

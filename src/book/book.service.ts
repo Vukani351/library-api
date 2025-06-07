@@ -14,6 +14,8 @@ import { Library } from 'src/models/library.model';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
 
+type HandoverStatus = 'pending' | 'approved' | 'rejected';
+
 @Injectable()
 export class BookService {
   constructor(
@@ -299,13 +301,15 @@ export class BookService {
   */
   async createBookHandover(handoverDetails: {
     book_id: number;
-    borrower_id: number;
-    meeting_location: string;
     meeting_date: Date;
+    borrower_id: number;
     meeting_time: string;
     lastEditorId: number;
+    handover_status: HandoverStatus;
+    meeting_location: string;
     borrower_phone_number: string;
     lender_phone_number: string;
+    handover_confirmed: boolean;
   }) {
     try {
         const book = await this.bookModel.findByPk(handoverDetails.book_id);
@@ -326,16 +330,19 @@ export class BookService {
             const updatedHandover = await existingHandover.update({
                 meeting_time: handoverDetails.meeting_time,
                 meeting_date: handoverDetails.meeting_date,
+                handover_confirmed: handoverDetails.handover_confirmed,
                 meeting_location: handoverDetails.meeting_location,
                 borrower_phone_number: handoverDetails.borrower_phone_number,
                 lender_phone_number: handoverDetails.lender_phone_number,
-                last_editor_id:handoverDetails.lastEditorId
+                last_editor_id:handoverDetails.lastEditorId,
+                handover_status: handoverDetails.handover_status
             });
             return updatedHandover;
         }
 
         const newHandover = await this.bookHandoverModel.create({
             handover_confirmed: false,
+            handover_status: "pending",
             book_id: handoverDetails.book_id,
             lender_id: book?.toJSON().owner_id,
             borrower_id: handoverDetails.borrower_id,
@@ -344,7 +351,7 @@ export class BookService {
             meeting_location: handoverDetails.meeting_location,
             borrower_phone_number: handoverDetails.borrower_phone_number,
             lender_phone_number: handoverDetails.lender_phone_number,
-            last_editor_id:handoverDetails.lastEditorId
+            last_editor_id: handoverDetails.lastEditorId
         } as BookHandover);   
 
         return newHandover;
