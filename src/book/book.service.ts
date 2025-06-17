@@ -13,6 +13,7 @@ import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
+import * as QRCode from 'qrcode';
 
 type HandoverStatus = 'pending' | 'approved' | 'rejected';
 
@@ -31,7 +32,7 @@ export class BookService {
     @InjectModel(BookHandover)
     private bookHandoverModel: typeof BookHandover,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async libraryCollection(libraryId: number, req: any): Promise<Book[]> {
     try {
@@ -53,7 +54,7 @@ export class BookService {
           user_id: userId,
         },
       });
- 
+
       if (!library_owner) {
         const access = await this.libraryAccessModel.findOne({
           where: {
@@ -127,7 +128,7 @@ export class BookService {
     if (book.is_private) {
       throw new BadRequestException('Book is not available for borrowing');
     }
-    
+
     // Check if request already exists
     const existingRequest = await this.bookRequestModel.findOne({
       where: { book_id: bookId, borrower_id: borrowerId, status: 'pending' },
@@ -218,9 +219,9 @@ export class BookService {
       }
       return requests;
     } catch (error) {
-       throw new InternalServerErrorException(
-         'An error occurred while retrieving borrow requests',
-       );
+      throw new InternalServerErrorException(
+        'An error occurred while retrieving borrow requests',
+      );
     }
   }
 
@@ -285,13 +286,13 @@ export class BookService {
       * add logic to update thumbnail from the cloudify shandic
     */
     await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
-      
+
     // Fetch and return the updated book record
     const updatedBook = await this.bookModel.findByPk(bookId);
     if (!updatedBook) {
       throw new InternalServerErrorException('Unable to retrieve the updated book');
     }
-    
+
     return updatedBook;
   }
 
@@ -312,59 +313,83 @@ export class BookService {
     handover_confirmed: boolean;
   }) {
     try {
-        const book = await this.bookModel.findByPk(handoverDetails.book_id);
-        if (!book) {
-            throw new NotFoundException('Book not found.');
-        }
+      const book = await this.bookModel.findByPk(handoverDetails.book_id);
+      if (!book) {
+        throw new NotFoundException('Book not found.');
+      }
 
-        const existingHandover = await this.bookHandoverModel.findOne({
-            where: {
-                book_id: handoverDetails.book_id,
-                borrower_id: handoverDetails.borrower_id,
-                lender_id: book?.toJSON().owner_id,
-            },
+      const existingHandover = await this.bookHandoverModel.findOne({
+        where: {
+          book_id: handoverDetails.book_id,
+          borrower_id: handoverDetails.borrower_id,
+          lender_id: book?.toJSON().owner_id,
+        },
+      });
+      console.dir({ book: book?.toJSON(), existingHandover: existingHandover?.toJSON() })
+
+      if (existingHandover) {
+        const updatedHandover = await existingHandover.update({
+          meeting_time: handoverDetails.meeting_time,
+          meeting_date: handoverDetails.meeting_date,
+          handover_confirmed: handoverDetails.handover_confirmed,
+          meeting_location: handoverDetails.meeting_location,
+          borrower_phone_number: handoverDetails.borrower_phone_number,
+          lender_phone_number: handoverDetails.lender_phone_number,
+          last_editor_id: handoverDetails.lastEditorId,
+          handover_status: handoverDetails.handover_status
         });
-        console.dir({book: book?.toJSON(), existingHandover: existingHandover?.toJSON()})
+        return updatedHandover;
+      }
 
-        if (existingHandover) {
-            const updatedHandover = await existingHandover.update({
-                meeting_time: handoverDetails.meeting_time,
-                meeting_date: handoverDetails.meeting_date,
-                handover_confirmed: handoverDetails.handover_confirmed,
-                meeting_location: handoverDetails.meeting_location,
-                borrower_phone_number: handoverDetails.borrower_phone_number,
-                lender_phone_number: handoverDetails.lender_phone_number,
-                last_editor_id:handoverDetails.lastEditorId,
-                handover_status: handoverDetails.handover_status
-            });
-            return updatedHandover;
-        }
+      const newHandover = await this.bookHandoverModel.create({
+        handover_confirmed: false,
+        handover_status: "pending",
+        book_id: handoverDetails.book_id,
+        lender_id: book?.toJSON().owner_id,
+        borrower_id: handoverDetails.borrower_id,
+        meeting_time: handoverDetails.meeting_time,
+        meeting_date: handoverDetails.meeting_date,
+        meeting_location: handoverDetails.meeting_location,
+        borrower_phone_number: handoverDetails.borrower_phone_number,
+        lender_phone_number: handoverDetails.lender_phone_number,
+        last_editor_id: handoverDetails.lastEditorId
+      } as BookHandover);
 
-        const newHandover = await this.bookHandoverModel.create({
-            handover_confirmed: false,
-            handover_status: "pending",
-            book_id: handoverDetails.book_id,
-            lender_id: book?.toJSON().owner_id,
-            borrower_id: handoverDetails.borrower_id,
-            meeting_time: handoverDetails.meeting_time,
-            meeting_date: handoverDetails.meeting_date,
-            meeting_location: handoverDetails.meeting_location,
-            borrower_phone_number: handoverDetails.borrower_phone_number,
-            lender_phone_number: handoverDetails.lender_phone_number,
-            last_editor_id: handoverDetails.lastEditorId
-        } as BookHandover);   
-
-        return newHandover;
+      return newHandover;
     } catch (error) {
-        console.error('Error in createBookHandover:', error);
-        if (error instanceof NotFoundException || error instanceof BadRequestException) {
-            throw error;
-        }
-        throw new InternalServerErrorException(
-            'An error occurred while creating the book handover'
-        );
+      console.error('Error in createBookHandover:', error);
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'An error occurred while creating the book handover'
+      );
     }
   }
+
+  async getQrCode(id: string) {
+    const handover = await this.bookHandoverModel.findByPk(+id);
+    if (!handover || !handover.handover_token) {
+      throw new NotFoundException();
+    }
+    const dataUrl = await QRCode.toDataURL(handover.handover_token);
+    // send back the PNG data (you could also return a JSON with dataUrl)
+    return Buffer.from(dataUrl.split(',')[1], 'base64');
+  }
+
+  //   async approveHandover(handoverId: number) {
+  //   // … load & approve the handover …
+  //   const handover = await this.bookHandoverModel.findByPk(handoverId);
+  //   if (!handover) throw new NotFoundException();
+
+  //   // generate a one‐time token (you could also sign a JWT here)
+  //   const token = uuid();
+  //   handover.handover_token = token;
+  //   await handover.save();
+
+  //   // return the token so your controller can hand it back
+  //   return { token };
+  // }
 
   /*
     * TODO:

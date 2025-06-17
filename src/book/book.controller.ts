@@ -11,12 +11,14 @@ import {
   NotFoundException,
   UploadedFile,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ImageFactory } from 'src/cloudinary/image.factory';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as QRCode from 'qrcode';
 
 @Controller('book')
 export class BookController {
@@ -110,6 +112,13 @@ export class BookController {
     return this.bookService.getById(bookId);
   }
 
+  @Get(':id/qr')
+  async getQr(@Param('id') id: string, @Res() res) {
+    const img = this.bookService.getQrCode(id)
+    res.set('Content-Type', 'image/png');
+    res.send(img);
+  }
+
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('thumbnail'))
   @Post(':bookId/thumbnail')
@@ -118,9 +127,9 @@ export class BookController {
     @UploadedFile() thumbnail: Express.Multer.File,
   ): Promise<Book> {
     if (!thumbnail) {
-      throw new NotFoundException('Thumbnail is required'); 
+      throw new NotFoundException('Thumbnail is required');
     }
-    
+
     const publicUrl = await this.imageFactory.saveImage(
       'book_thumbnail',
       thumbnail,
@@ -162,3 +171,4 @@ export class BookController {
     return this.bookService.getBookHandoverByBookId(bookId);
   }
 }
+

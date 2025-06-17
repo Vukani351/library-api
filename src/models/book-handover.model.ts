@@ -93,4 +93,10 @@ export class BookHandover extends Model<BookHandover> {
     },
   })
   declare lender_phone_number: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare handover_token: string;
 }

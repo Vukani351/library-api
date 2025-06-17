@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS book_handovers (
   borrower_phone_number VARCHAR(10),
   last_editor_id INT,
   lender_phone_number VARCHAR(10),
+  handover_token VARCHAR(255) NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (book_id) REFERENCES book(id),
