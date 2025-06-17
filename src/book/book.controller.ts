@@ -120,7 +120,7 @@ export class BookController {
     if (!thumbnail) {
       throw new NotFoundException('Thumbnail is required'); 
     }
-    // Save image to Cloudinary
+    
     const publicUrl = await this.imageFactory.saveImage(
       'book_thumbnail',
       thumbnail,
