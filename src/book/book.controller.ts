@@ -155,6 +155,7 @@ export class BookController {
       lender_phone_number: lenderPhoneNumber,
       handover_status: handoverStatus,
       handover_confirmed: handoverConfirmed,
+      handover_pin: handoverConfirmed ? Math.floor(100000 + Math.random() * 2000) : undefined
     });
   }
 

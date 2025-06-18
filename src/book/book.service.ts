@@ -311,6 +311,7 @@ export class BookService {
     borrower_phone_number: string;
     lender_phone_number: string;
     handover_confirmed: boolean;
+    handover_pin: number | undefined;
   }) {
     try {
       const book = await this.bookModel.findByPk(handoverDetails.book_id);
@@ -335,7 +336,8 @@ export class BookService {
           borrower_phone_number: handoverDetails.borrower_phone_number,
           lender_phone_number: handoverDetails.lender_phone_number,
           last_editor_id: handoverDetails.lastEditorId,
-          handover_status: handoverDetails.handover_status
+          handover_status: handoverDetails.handover_status,
+          handover_pin: handoverDetails.handover_pin
         });
         return updatedHandover;
       }
@@ -351,7 +353,8 @@ export class BookService {
         meeting_location: handoverDetails.meeting_location,
         borrower_phone_number: handoverDetails.borrower_phone_number,
         lender_phone_number: handoverDetails.lender_phone_number,
-        last_editor_id: handoverDetails.lastEditorId
+        last_editor_id: handoverDetails.lastEditorId,
+        handover_pin: handoverDetails.handover_pin
       } as BookHandover);
 
       return newHandover;
