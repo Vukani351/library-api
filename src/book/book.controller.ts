@@ -112,13 +112,6 @@ export class BookController {
     return this.bookService.getById(bookId);
   }
 
-  @Get(':id/qr')
-  async getQr(@Param('id') id: string, @Res() res) {
-    const img = this.bookService.getQrCode(id)
-    res.set('Content-Type', 'image/png');
-    res.send(img);
-  }
-
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('thumbnail'))
   @Post(':bookId/thumbnail')

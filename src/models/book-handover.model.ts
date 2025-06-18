@@ -95,8 +95,8 @@ export class BookHandover extends Model<BookHandover> {
   declare lender_phone_number: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: true,
   })
-  declare handover_token: string;
+  declare handover_pin: number;
 }

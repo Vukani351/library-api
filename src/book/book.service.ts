@@ -325,7 +325,6 @@ export class BookService {
           lender_id: book?.toJSON().owner_id,
         },
       });
-      console.dir({ book: book?.toJSON(), existingHandover: existingHandover?.toJSON() })
 
       if (existingHandover) {
         const updatedHandover = await existingHandover.update({
@@ -367,30 +366,6 @@ export class BookService {
     }
   }
 
-  async getQrCode(id: string) {
-    const handover = await this.bookHandoverModel.findByPk(+id);
-    if (!handover || !handover.handover_token) {
-      throw new NotFoundException();
-    }
-    const dataUrl = await QRCode.toDataURL(handover.handover_token);
-    // send back the PNG data (you could also return a JSON with dataUrl)
-    return Buffer.from(dataUrl.split(',')[1], 'base64');
-  }
-
-  //   async approveHandover(handoverId: number) {
-  //   // … load & approve the handover …
-  //   const handover = await this.bookHandoverModel.findByPk(handoverId);
-  //   if (!handover) throw new NotFoundException();
-
-  //   // generate a one‐time token (you could also sign a JWT here)
-  //   const token = uuid();
-  //   handover.handover_token = token;
-  //   await handover.save();
-
-  //   // return the token so your controller can hand it back
-  //   return { token };
-  // }
-
   /*
     * TODO:
     * ensure that user has one request for book eath time
@@ -408,9 +383,6 @@ export class BookService {
       return handover;
     } catch (error) {
       console.error('Error in getBookHandoverByBookId:', error);
-      // throw new InternalServerErrorException(
-      //   'An error occurred while fetching the handover record',
-      // );
       return [];
     }
   }
