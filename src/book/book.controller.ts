@@ -74,7 +74,6 @@ export class BookController {
     @Body('borrowerId') borrowerId: number,
     @Body('returnByDate') returnByDate: Date,
   ) {
-    // console.log({ bookId: bookId, borrowerId: borrowerId, returnByDate: returnByDate }); return [123, 456, 789];
     return this.bookService.requestBorrow(bookId, borrowerId, returnByDate);
   }
 

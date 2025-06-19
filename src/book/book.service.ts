@@ -13,7 +13,6 @@ import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
-import * as QRCode from 'qrcode';
 
 type HandoverStatus = 'pending' | 'approved' | 'rejected';
 
@@ -102,7 +101,7 @@ export class BookService {
 
   async updateBook(id: number, updateData: Partial<Book>): Promise<Book> {
     try {
-      const book = await this.findOne(id); // This will throw NotFoundException if no book found
+      const book = await this.findOne(id);
       const updatedBook = await book.update(updateData);
       return updatedBook;
     } catch (error) {
@@ -116,7 +115,6 @@ export class BookService {
   }
 
   async requestBorrow(bookId: number, borrowerId: number, returnByDate: Date) {
-    // Check if book exists
     const bookRecord = await this.bookModel.findByPk(bookId);
     if (!bookRecord) {
       throw new NotFoundException('Book not found');
@@ -129,13 +127,11 @@ export class BookService {
       throw new BadRequestException('Book is not available for borrowing');
     }
 
-    // Check if request already exists
     const existingRequest = await this.bookRequestModel.findOne({
       where: { book_id: bookId, borrower_id: borrowerId, status: 'pending' },
     });
 
     if (existingRequest) {
-      // this could be a message, not an error.
       throw new BadRequestException(
         'You have already requested to borrow this book',
       );
@@ -153,20 +149,17 @@ export class BookService {
 
   async respondToBorrow(requestId: number, response: string) {
     try {
-      // Fetch the borrow request
       const request = await this.bookRequestModel.findByPk(requestId);
       if (!request) {
         throw new NotFoundException('Borrow request not found');
       }
 
-      // Fetch the book associated with the request
       const book = await this.bookModel.findByPk(request.book_id);
       if (!book) {
         throw new NotFoundException('Book not found');
       }
 
       if (response === 'approved') {
-        // Update the book's borrower and status
         await this.bookModel.update(
           {
             borrower_id: request.borrower_id,
@@ -176,7 +169,6 @@ export class BookService {
           { where: { id: request.book_id } }
         );
 
-        // Update the request's status and approval date
         await this.bookRequestModel.update(
           {
             status: 'approved',
@@ -185,7 +177,6 @@ export class BookService {
           { where: { id: requestId } }
         );
       } else if (response === 'rejected') {
-        // Update the request's status to rejected
         await this.bookRequestModel.update(
           {
             status: 'rejected',
@@ -195,7 +186,6 @@ export class BookService {
         );
       }
 
-      // Fetch and return the updated request
       const updatedRequest = await this.bookRequestModel.findByPk(requestId);
       return updatedRequest;
     } catch (error) {
@@ -287,7 +277,6 @@ export class BookService {
     */
     await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
 
-    // Fetch and return the updated book record
     const updatedBook = await this.bookModel.findByPk(bookId);
     if (!updatedBook) {
       throw new InternalServerErrorException('Unable to retrieve the updated book');
