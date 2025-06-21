@@ -142,6 +142,7 @@ export class BookController {
     @Body('lender_phone_number') lenderPhoneNumber: string,
     @Body('handover_status') handoverStatus: 'pending' | 'approved' | 'rejected',
     @Body('handover_confirmed') handoverConfirmed: boolean,
+    @Body('book_handover_type') bookHandoverType: "return" | "borrow",
   ) {
     return this.bookService.createBookHandover({
       book_id: bookId,
@@ -154,6 +155,7 @@ export class BookController {
       lender_phone_number: lenderPhoneNumber,
       handover_status: handoverStatus,
       handover_confirmed: handoverConfirmed,
+      book_handover_type: bookHandoverType,
       handover_pin: handoverConfirmed ? Math.floor(100000 + Math.random() * 2000) : undefined
     });
   }

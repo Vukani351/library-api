@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS book_handovers (
   meeting_date DATE,
   meeting_time TIME,
   handover_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  book_handover_type ENUM('return', 'borrow') NOT NULL DEFAULT 'borrow',
   handover_confirmed BOOLEAN DEFAULT FALSE,
   borrower_phone_number VARCHAR(10),
   last_editor_id INT,

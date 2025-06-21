@@ -70,6 +70,13 @@ export class BookHandover extends Model<BookHandover> {
   declare handover_status: 'pending' | 'approved' | 'rejected';
 
   @Column({
+    type: DataType.ENUM('return', 'borrow'),
+    allowNull: false,
+    defaultValue: 'borrow',
+  })
+  declare book_handover_type: 'return' | 'borrow';
+
+  @Column({
     type: DataType.STRING,
     allowNull: true,
     validate: {

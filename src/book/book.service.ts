@@ -311,6 +311,7 @@ export class BookService {
     borrower_phone_number: string;
     lender_phone_number: string;
     handover_confirmed: boolean;
+    book_handover_type: 'return' | 'borrow';
     handover_pin: number | undefined;
   }) {
     try {
@@ -337,7 +338,8 @@ export class BookService {
           lender_phone_number: handoverDetails.lender_phone_number,
           last_editor_id: handoverDetails.lastEditorId,
           handover_status: handoverDetails.handover_status,
-          handover_pin: handoverDetails.handover_pin
+          handover_pin: handoverDetails.handover_pin,
+          book_handover_type: handoverDetails.book_handover_type,
         });
         return updatedHandover;
       }
@@ -354,7 +356,8 @@ export class BookService {
         borrower_phone_number: handoverDetails.borrower_phone_number,
         lender_phone_number: handoverDetails.lender_phone_number,
         last_editor_id: handoverDetails.lastEditorId,
-        handover_pin: handoverDetails.handover_pin
+        handover_pin: handoverDetails.handover_pin,
+        book_handover_type: handoverDetails.book_handover_type,
       } as BookHandover);
 
       return newHandover;
