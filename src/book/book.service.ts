@@ -285,6 +285,17 @@ export class BookService {
     return updatedBook;
   }
 
+  async borrowedBooks(borrower_id: number): Promise<Book[]> {
+    const booksModel = this.bookModel.findAll(
+      {
+        where: {
+          borrower_id: borrower_id
+        }
+      }
+    );
+    return booksModel
+  }
+
   /*
   * TODO:
   * create a typefor this DTO:

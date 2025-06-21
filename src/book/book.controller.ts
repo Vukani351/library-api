@@ -163,5 +163,11 @@ export class BookController {
   async getBookHandover(@Param('bookId') bookId: number) {
     return this.bookService.getBookHandoverByBookId(bookId);
   }
+
+  @UseGuards(AuthGuard)
+  @Get(':borrowerId/borrowed')
+  async find(@Param('borrowerId') borrowerId: number): Promise<Book[]> {
+    return this.bookService.borrowedBooks(borrowerId);
+  }
 }
 
