@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        // await queryInterface.addColumn('book_handovers', 'bookhandoverType', {
+        // await queryInterface.addColumn('book_handovers', 'book_handover_type', {
         //     type: Sequelize.ENUM('return', 'borrow'),
         //     allowNull: false,
         //     defaultValue: 'borrow',
@@ -12,6 +12,6 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        // await queryInterface.removeColumn('book_handovers', 'bookhandoverType');
+        // await queryInterface.removeColumn('book_handovers', 'book_handover_type');
     },
 };

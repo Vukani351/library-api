@@ -325,6 +325,7 @@ export class BookService {
           book_id: handoverDetails.book_id,
           borrower_id: handoverDetails.borrower_id,
           lender_id: book?.toJSON().owner_id,
+          book_handover_type: handoverDetails.book_handover_type,
         },
       });
 
@@ -380,6 +381,7 @@ export class BookService {
     try {
       const handover = await this.bookHandoverModel.findOne({
         where: { book_id: bookId },
+        order: [['createdAt', 'DESC']]
       });
 
       if (!handover) {
