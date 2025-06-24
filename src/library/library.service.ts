@@ -12,7 +12,7 @@ export class LibraryService {
     @InjectModel(LibraryAccess)
     private libraryAccessModel: typeof LibraryAccess,
     @InjectModel(User) private UserModel: typeof User,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Library[]> {
     return this.libraryModel.findAll();
@@ -35,14 +35,14 @@ export class LibraryService {
       if (libraries.length === 0) {
         throw new NotFoundException(`Library with a name like "${name}" not found`);
       }
-      
+
       return libraries;
     } catch (error) {
       console.error('Error in getLibraryByName:', error);
       throw new InternalServerErrorException('Sorry, there is an issue with library by name. ' + error.message);
     }
   }
-  
+
   async getLibrary(userId: number): Promise<Library | any> {
     try {
       /* 
@@ -83,7 +83,7 @@ export class LibraryService {
     return this.libraryModel.create(library as Library);
   }
 
-  async update(id: number, updateData: Partial<Library>): Promise<Library> {
+  async update(id: string, updateData: Partial<Library>): Promise<Library> {
     const library = await this.libraryModel.findByPk(id);
     if (!library) {
       throw new NotFoundException(`Library with id ${id} not found`);
@@ -111,13 +111,13 @@ export class LibraryService {
     }
     console.dir({ userId, libraryDetails }, { depth: null });
     return this.libraryAccessModel.create({
-        user_id: userId,
-        library_id: libraryId,
-        owner_id: libraryDetails.user_id,
-        status: 'pending',
-        requested_at: new Date(),
-      });
-    }
+      user_id: userId,
+      library_id: libraryId,
+      owner_id: libraryDetails.user_id,
+      status: 'pending',
+      requested_at: new Date(),
+    });
+  }
 
   async approveAccess(requestId: number, response: string) {
     if (response === "" || !response) {
@@ -133,7 +133,7 @@ export class LibraryService {
 
     await this.libraryAccessModel.update(
       {
-        status: response == 'approved'? 'approved': 'rejected',
+        status: response == 'approved' ? 'approved' : 'rejected',
         approved_at: new Date()
       },
       { where: { id: requestId } },
@@ -246,21 +246,21 @@ export class LibraryService {
   }
 
   async updateLibraryThumbnail(libraryId: number, imageUrl: string): Promise<Library | null> {
-   try {
-    const library = await this.libraryModel.findByPk(libraryId);
-    if (!library) {
-      throw new NotFoundException(`Library with id ${libraryId} not found`);
-    }
-    
-    await this.libraryModel.update(
-      { thumbnail: imageUrl },
+    try {
+      const library = await this.libraryModel.findByPk(libraryId);
+      if (!library) {
+        throw new NotFoundException(`Library with id ${libraryId} not found`);
+      }
+
+      await this.libraryModel.update(
+        { thumbnail: imageUrl },
         { where: { id: libraryId } }
-    );
-     
-    return await this.libraryModel.findByPk(libraryId);
-   } catch (error) {
-     console.error('Failed to update library thumbnail:\n', error);
-     return null
-   }
+      );
+
+      return await this.libraryModel.findByPk(libraryId);
+    } catch (error) {
+      console.error('Failed to update library thumbnail:\n', error);
+      return null
+    }
   }
 }

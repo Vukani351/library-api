@@ -34,7 +34,7 @@ export class LibraryController {
   @Get("all")
   findAllLibraries() {
     return this.libraryService.findAll();
-  } 
+  }
 
   @UseGuards(AuthGuard)
   @Get()
@@ -64,9 +64,9 @@ export class LibraryController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':id')
+  @Put(':id/edit')
   update(@Param('id') id: string, @Body() updateLibrary: Partial<Library>) {
-    return this.libraryService.update(+id, updateLibrary);
+    return this.libraryService.update(id, updateLibrary);
   }
 
   @UseGuards(AuthGuard)
@@ -91,7 +91,7 @@ export class LibraryController {
     @Body('response') response: string) {
     return this.libraryService.approveAccess(requestId, response);
   }
-  
+
   @Post(':libraryId/thumbnail')
   @UseInterceptors(FileInterceptor('thumbnail'))
   async updateThumbnail(
@@ -101,7 +101,7 @@ export class LibraryController {
     if (!thumbnail) {
       throw new BadRequestException('Thumbnail URL is required');
     }
-    if(libraryId === null || libraryId === undefined) {
+    if (libraryId === null || libraryId === undefined) {
       throw new BadRequestException('User ID is required');
     }
 
@@ -118,6 +118,6 @@ export class LibraryController {
     }
     return updatedLibrary;
   }
-  
+
   // :id/borrow-history
 }
