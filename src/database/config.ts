@@ -8,7 +8,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: 'mysql',
+    dialect: process.env.DB_DIALECT,
     migrationStorageTableName: 'sequelize_meta',
   },
   production: {
@@ -17,7 +17,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: 'mysql',
+    dialect: process.env.DB_DIALECT,
     migrationStorageTableName: 'sequelize_meta',
   },
 };

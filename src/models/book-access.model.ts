@@ -10,7 +10,11 @@ import { User } from './user.model';
 import { Book } from './book.model';
 import { Library } from './library.model';
 
-@Table({ tableName: 'book_access' })
+@Table({
+  tableName: 'book_access',
+  createdAt: 'createdat',
+  updatedAt: 'updatedat'
+})
 export class BookRequest extends Model<BookRequest> {
   @Column({
     type: DataType.INTEGER,

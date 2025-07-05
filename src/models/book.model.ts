@@ -9,7 +9,12 @@ import {
 import { User } from './user.model';
 import { Library } from './library.model';
 
-@Table({ tableName: 'book' })
+@Table({
+  tableName: 'book',
+  timestamps: true,
+  createdAt: 'createdat',
+  updatedAt: 'updatedat'
+})
 export class Book extends Model<Book> {
   @Column({
     type: DataType.INTEGER,

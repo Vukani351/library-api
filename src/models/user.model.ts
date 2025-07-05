@@ -1,6 +1,11 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
-@Table({ tableName: 'user' })
+@Table({
+  tableName: 'user',
+  timestamps: true,
+  createdAt: 'createdat',
+  updatedAt: 'updatedat',
+})
 export class User extends Model<User> {
   @Column({
     type: DataType.STRING(100),

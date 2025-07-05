@@ -8,7 +8,12 @@ import {
 import { Book } from './book.model';
 import { User } from './user.model';
 
-@Table({ tableName: 'book_handovers', timestamps: true, createdAt: 'createdAt', updatedAt: 'updatedAt' })
+@Table({
+  tableName: 'book_handovers',
+  timestamps: true,
+  createdAt: 'createdat',
+  updatedAt: 'updatedat'
+})
 export class BookHandover extends Model<BookHandover> {
   @Column({
     type: DataType.INTEGER,

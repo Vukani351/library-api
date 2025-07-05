@@ -11,10 +11,8 @@ import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // Make the ConfigModule available globally
       isGlobal: true,
-      // Conditionally load .env.development if NODE_ENV=development, else .env:
-      envFilePath: process.env.NODE_ENV === 'development' 
+      envFilePath: process.env.NODE_ENV === 'development'
         ? '.env.development'
         : '.env',
     }),
@@ -49,4 +47,4 @@ import { MulterModule } from '@nestjs/platform-express';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

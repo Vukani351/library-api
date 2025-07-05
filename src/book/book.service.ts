@@ -81,8 +81,7 @@ export class BookService {
     } catch (error) {
       console.error('Error in libraryCollection:', error);
       throw new InternalServerErrorException(
-        'Could not fetch library collection',
-        error,
+        'Could not fetch library collection'
       );
     }
   }

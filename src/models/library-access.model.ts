@@ -10,7 +10,9 @@ import { User } from './user.model';
 
 @Table({
   tableName: 'library_access',
-  timestamps: true, // Enables createdAt and updatedAt fields
+  timestamps: true,
+  createdAt: 'createdat',
+  updatedAt: 'updatedat'
 })
 export class LibraryAccess extends Model {
 

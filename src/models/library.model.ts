@@ -7,7 +7,12 @@ import {
 } from 'sequelize-typescript';
 import { User } from './user.model';
 
-@Table({ tableName: 'library' })
+@Table({
+  tableName: 'library',
+  timestamps: true,
+  createdAt: 'createdat',
+  updatedAt: 'updatedat',
+})
 export class Library extends Model<Library> {
   @Column({
     type: DataType.STRING(100),
