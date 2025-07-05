@@ -11,15 +11,12 @@ import {
   NotFoundException,
   UploadedFile,
   UseInterceptors,
-  Res,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ImageFactory } from 'src/cloudinary/image.factory';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as QRCode from 'qrcode';
-
 @Controller('book')
 export class BookController {
   constructor(
