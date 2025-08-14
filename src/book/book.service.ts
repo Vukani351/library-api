@@ -315,7 +315,7 @@ export class BookService {
   }) {
     try {
       const book = await this.bookModel.findByPk(handoverDetails.book_id);
-      if (!book) {
+      if (!book?.toJSON()) {
         throw new NotFoundException('Book not found.');
       }
 
@@ -324,7 +324,7 @@ export class BookService {
           book_id: handoverDetails.book_id,
           borrower_id: handoverDetails.borrower_id,
           lender_id: book?.toJSON().owner_id,
-          book_handover_type: handoverDetails.book_handover_type,
+          book_handover_type: handoverDetails?.book_handover_type || "borrow",
         },
       });
 
@@ -339,7 +339,7 @@ export class BookService {
           last_editor_id: handoverDetails.lastEditorId,
           handover_status: handoverDetails.handover_status,
           handover_pin: handoverDetails.handover_pin,
-          book_handover_type: handoverDetails.book_handover_type,
+          book_handover_type: handoverDetails?.book_handover_type || "borrow", // verify that this is correct
         });
         return updatedHandover;
       }
@@ -380,7 +380,7 @@ export class BookService {
     try {
       const handover = await this.bookHandoverModel.findOne({
         where: { book_id: bookId },
-        order: [['createdAt', 'DESC']]
+        order: [['createdat', 'DESC']]
       });
 
       if (!handover) {
