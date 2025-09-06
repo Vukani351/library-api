@@ -7,6 +7,7 @@ import { BookModule } from './book/book.module';
 import { LibraryModule } from './library/library.module';
 import { UserModule } from './user/user.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { GamificationModule } from './gamification/gamification.module';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { MulterModule } from '@nestjs/platform-express';
             password: configService.get<string>('DB_PASSWORD'),
             database: configService.get<string>('DB_DATABASE'),
             autoLoadModels: true,
-            synchronize: true, // Auto-sync models (turn off in production)
+            synchronize: true,
           };
         } catch (error) {
           Logger.error('Failed to connect to the database');
@@ -38,11 +39,12 @@ import { MulterModule } from '@nestjs/platform-express';
       inject: [ConfigService],
     }),
     MulterModule.register({
-      dest: './uploads', // Set the destination folder for temp file storage
+      dest: './uploads',
     }),
     BookModule,
     LibraryModule,
     UserModule,
+    GamificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
