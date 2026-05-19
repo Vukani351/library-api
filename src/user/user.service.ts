@@ -6,12 +6,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../models/user.model';
+import { Library } from '../models/library.model';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userModel: typeof User,
+    @InjectModel(Library) private libraryModel: typeof Library,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -38,17 +40,30 @@ export class UserService {
     };
     const token = this.jwtService.sign(payload);
 
-    return { token: token };
+    const library = await this.libraryModel.findOne({
+      where: { user_id: user.id },
+      raw: true,
+    });
+
+    return { token: token, library: library };
   }
 
   async register(user: Partial<User>): Promise<any> {
     try {
       const new_user = await this.userModel.create(user as User);
       const parsed_user = new_user.get({ plain: true });
+
+      const library = await this.libraryModel.create({
+        name: parsed_user.name,
+        user_id: parsed_user.id,
+        description: `${parsed_user.name}'s library`,
+      } as Library);
+
       const payload = { email: parsed_user.email, name: parsed_user.name };
       const token = this.jwtService.sign(payload);
       return {
         token: token,
+        library: library.get({ plain: true }),
       };
     } catch (error) {
       console.log('error: \n', error);
@@ -59,7 +74,7 @@ export class UserService {
   async updateUser(id: number, updateData: Partial<User>): Promise<any> {
     try {
       // Filter out only the fields that are allowed to be updated
-      const allowedFields = ['name', 'email', 'status', "address"];
+      const allowedFields = ['name', 'email', 'status', 'address'];
       const filteredData = Object.keys(updateData)
         .filter(
           (key) => allowedFields.includes(key) && updateData[key] !== undefined,
@@ -91,7 +106,7 @@ export class UserService {
         thumbnail: updatedUser.thumbnail,
       });
 
-      return {token: token};
+      return { token: token };
     } catch (error) {
       console.log('error: \n', error);
       throw new InternalServerErrorException('Failed to update user');
@@ -105,23 +120,26 @@ export class UserService {
       name: user?.name || '',
       email: user?.email || '',
       address: user?.address || '',
-      thumbnail: user?.thumbnail
+      thumbnail: user?.thumbnail,
     };
   }
 
-  async updateThumbnail(userId: number, imageUrl: string): Promise<User | null> {
+  async updateThumbnail(
+    userId: number,
+    imageUrl: string,
+  ): Promise<User | null> {
     // Check if the user exists
     const user = await this.userModel.findByPk(userId);
     if (!user) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
-  
+
     // Update the thumbnail field using the update method
     await this.userModel.update(
       { thumbnail: imageUrl },
-      { where: { id: userId } }
+      { where: { id: userId } },
     );
-  
+
     // Fetch and return the updated user
     const updatedUser = await this.userModel.findByPk(userId);
     return updatedUser;

@@ -27,12 +27,12 @@ type LoginCredentials = {
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly imageFactory: ImageFactory
-  ) { }
+    private readonly imageFactory: ImageFactory,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  SignUp(@Body() user: Partial<User>) {
+  SignUp(@Body() user: Partial<any>) {
     return this.userService.register(user);
   }
 
@@ -71,7 +71,10 @@ export class UserController {
       thumbnail,
     );
 
-    const updatedUser = await this.userService.updateThumbnail(Number(userId), publicUrl);
+    const updatedUser = await this.userService.updateThumbnail(
+      Number(userId),
+      publicUrl,
+    );
     return {
       message: 'Thumbnail updated successfully',
       data: updatedUser,
