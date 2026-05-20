@@ -7,7 +7,6 @@ import {
   HttpStatus,
   UseGuards,
   Param,
-  Put,
   BadRequestException,
   UploadedFile,
   UseInterceptors,
@@ -49,7 +48,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':id') // add prefix 'update' to the route
+  @Post(':id')
   update(@Param('id') id: string, @Body() updateUser: Partial<User>) {
     return this.userService.updateUser(Number(id), updateUser);
   }

@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../models/user.model';
@@ -72,8 +73,10 @@ export class UserService {
   }
 
   async updateUser(id: number, updateData: Partial<User>): Promise<any> {
+    if (!updateData || typeof updateData !== 'object') {
+      throw new BadRequestException('Request body is required');
+    }
     try {
-      // Filter out only the fields that are allowed to be updated
       const allowedFields = ['name', 'email', 'status', 'address'];
       const filteredData = Object.keys(updateData)
         .filter(
