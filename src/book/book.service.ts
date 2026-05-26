@@ -35,6 +35,7 @@ export class BookService {
 
   async libraryCollection(libraryId: number, req: any): Promise<Book[]> {
     try {
+      console.log('library id: ', libraryId);
       const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
@@ -77,7 +78,8 @@ export class BookService {
       const books = await this.bookModel.findAll({
         where: { library_id: libraryId, owner_id: userId },
       });
-      return books || [];
+      console.log('library s catalogue: ', books);
+      return books;
     } catch (error) {
       console.error('Error in libraryCollection:', error);
       throw new InternalServerErrorException(
