@@ -35,19 +35,22 @@ export class BookService {
 
   async libraryCollection(libraryId: number, req: any): Promise<Book[]> {
     try {
-      console.log('library id: ', libraryId);
       const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
         throw new Error('Token not found');
       }
 
-      const userId = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
-      }).then(d => d.id).catch((err) => {
-        console.error('Error verifying token:', err);
-      });
+      const userId = await this.jwtService
+        .verifyAsync(token, {
+          secret: jwtConstants.secret,
+        })
+        .then((d) => d.id)
+        .catch((err) => {
+          console.error('Error verifying token:', err);
+        });
 
+      console.log('library id: ', libraryId, userId);
       const library_owner = await this.libraryModel.findOne({
         where: {
           id: libraryId,
@@ -71,7 +74,9 @@ export class BookService {
         }
 
         if (!access && !!library_owner) {
-          throw new BadRequestException('You do not have access to this library');
+          throw new BadRequestException(
+            'You do not have access to this library',
+          );
         }
       }
 
@@ -83,7 +88,7 @@ export class BookService {
     } catch (error) {
       console.error('Error in libraryCollection:', error);
       throw new InternalServerErrorException(
-        'Could not fetch library collection'
+        'Could not fetch library collection',
       );
     }
   }
