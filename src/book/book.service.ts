@@ -50,7 +50,6 @@ export class BookService {
           console.error('Error verifying token:', err);
         });
 
-      console.log('library id: ', libraryId, userId);
       const library_owner = await this.libraryModel.findOne({
         where: {
           id: libraryId,
@@ -83,7 +82,7 @@ export class BookService {
       const books = await this.bookModel.findAll({
         where: { library_id: libraryId, owner_id: userId },
       });
-      console.log('library s catalogue: ', books);
+
       return books;
     } catch (error) {
       console.error('Error in libraryCollection:', error);

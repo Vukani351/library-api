@@ -264,6 +264,7 @@ Modify the `bootstrap` function to include migrations:
 
 ## Todo:
 
+- we need to add module on the app allowing us to record isbn numbers, currently when the search failes we just try to let user input it instead of adding it also.
 - we need user groups, people can either be owners or readers from a library. this means we might need a user group that is allowed to access a certain library[] 
 - Remove express & use fastify for a change. [x]
 - Add a reply decorator for standardizing responses.[]
