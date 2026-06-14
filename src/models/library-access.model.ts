@@ -12,46 +12,45 @@ import { User } from './user.model';
   tableName: 'library_access',
   timestamps: true,
   createdAt: 'createdat',
-  updatedAt: 'updatedat'
+  updatedAt: 'updatedat',
 })
 export class LibraryAccess extends Model {
-
   @ForeignKey(() => Library)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  library_id: number;
+  declare library_id: number;
 
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  user_id: number;
+  declare user_id: number;
 
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  owner_id: number;
+  declare owner_id: number;
 
   @Column({
     type: DataType.ENUM('pending', 'approved', 'rejected'),
     defaultValue: 'pending',
   })
-  status: string;
+  declare status: string;
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  requested_at: Date;
+  declare requested_at: Date;
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  approved_at: Date;
+  declare approved_at: Date;
 }

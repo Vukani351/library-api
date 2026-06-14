@@ -11,37 +11,37 @@ export class User extends Model<User> {
     type: DataType.STRING(100),
     allowNull: false,
   })
-  name: string;
+  declare name: string;
 
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
     unique: true,
   })
-  email: string;
+  declare email: string;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: false,
   })
-  password: string;
+  declare password: string;
 
   @Column({
     type: DataType.STRING(100),
     allowNull: true,
     defaultValue: 'active',
   })
-  status: string;
+  declare status: string;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: true,
   })
-  address: string;
+  declare address: string;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: true,
   })
-  thumbnail: string;
+  declare thumbnail: string;
 }

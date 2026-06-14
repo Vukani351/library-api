@@ -18,28 +18,28 @@ export class Library extends Model<Library> {
     type: DataType.STRING(100),
     allowNull: false,
   })
-  name: string;
+  declare name: string;
 
   @Column({
     type: DataType.STRING(100),
     allowNull: true,
     defaultValue: 'active',
   })
-  status: string;
+  declare status: string;
 
   @Column({
     type: DataType.STRING(100),
     allowNull: true,
     defaultValue: 'This is a library...',
   })
-  description: string;
+  declare description: string;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
     defaultValue: 1,
   })
-  is_private: number;
+  declare is_private: number;
 
   @ForeignKey(() => User)
   @Column({
@@ -47,19 +47,19 @@ export class Library extends Model<Library> {
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  user_id: number;
+  declare user_id: number;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: true,
-    comment: 'URL to the library thumbnail image'
+    comment: 'URL to the library thumbnail image',
   })
-  thumbnail: string;
+  declare thumbnail: string;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: true,
-    comment: 'Physical address of the library'
+    comment: 'Physical address of the library',
   })
-  address: string;
+  declare address: string;
 }

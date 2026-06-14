@@ -13,7 +13,7 @@ import { Library } from './library.model';
   tableName: 'book',
   timestamps: true,
   createdAt: 'createdat',
-  updatedAt: 'updatedat'
+  updatedAt: 'updatedat',
 })
 export class Book extends Model<Book> {
   @Column({
@@ -27,25 +27,25 @@ export class Book extends Model<Book> {
     type: DataType.STRING(255),
     allowNull: false,
   })
-  title: string;
+  declare title: string;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: false,
   })
-  author: string;
+  declare author: string;
 
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  thumbnail: string;
+  declare thumbnail: string;
 
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  description: string;
+  declare description: string;
 
   @ForeignKey(() => User)
   @Column({
@@ -53,13 +53,13 @@ export class Book extends Model<Book> {
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  owner_id: number;
+  declare owner_id: number;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })
-  borrower_id: number;
+  declare borrower_id: number;
 
   @ForeignKey(() => Library)
   @Column({
@@ -67,29 +67,29 @@ export class Book extends Model<Book> {
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  library_id: number;
+  declare library_id: number;
 
   @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
-  is_private: boolean;
+  declare is_private: boolean;
 
   @Column({
     type: DataType.DATE,
     defaultValue: DataType.NOW,
   })
-  borrowed_at: Date;
+  declare borrowed_at: Date;
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  return_by_date: Date;
+  declare return_by_date: Date;
 
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
   })
-  status: string;
+  declare status: string;
 }
