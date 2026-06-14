@@ -31,7 +31,7 @@ export class BookService {
     @InjectModel(BookHandover)
     private bookHandoverModel: typeof BookHandover,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async libraryCollection(libraryId: number, req: any): Promise<Book[]> {
     try {
@@ -107,14 +107,15 @@ export class BookService {
   async updateBook(id: number, updateData: Partial<Book>): Promise<Book> {
     try {
       const book = await this.findOne(id);
-      const updatedBook = await book.update(updateData);
+      book.set(updateData);
+      const updatedBook = await book.save();
       return updatedBook;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      // ADD THIS LOG TO SEE THE EXACT PROBLEM IN YOUR TERMINAL
+      console.error('Sequelize Update Error:', error);
+
       throw new InternalServerErrorException(
-        `Failed to update book with id ${id}`,
+        `Failed to update book with id ${id}. Reason: ${error.message}`,
       );
     }
   }
@@ -171,7 +172,7 @@ export class BookService {
             status: 'active',
             return_by_date: request.return_by_date,
           },
-          { where: { id: request.book_id } }
+          { where: { id: request.book_id } },
         );
 
         await this.bookRequestModel.update(
@@ -179,7 +180,7 @@ export class BookService {
             status: 'approved',
             approved_at: new Date(),
           },
-          { where: { id: requestId } }
+          { where: { id: requestId } },
         );
       } else if (response === 'rejected') {
         await this.bookRequestModel.update(
@@ -187,7 +188,7 @@ export class BookService {
             status: 'rejected',
             approved_at: new Date(),
           },
-          { where: { id: requestId } }
+          { where: { id: requestId } },
         );
       }
 
@@ -196,7 +197,7 @@ export class BookService {
     } catch (error) {
       console.error('Error in respondToBorrow:', error);
       throw new InternalServerErrorException(
-        'An error occurred while responding to the borrow request'
+        'An error occurred while responding to the borrow request',
       );
     }
   }
@@ -228,7 +229,9 @@ export class BookService {
       });
 
       if (!bookRequests || bookRequests.length === 0) {
-        throw new NotFoundException('No borrow requests found for this library');
+        throw new NotFoundException(
+          'No borrow requests found for this library',
+        );
       }
 
       // Fetch user details for each borrow request
@@ -248,9 +251,7 @@ export class BookService {
 
       return enrichedRequests;
     } catch (error) {
-      // Log the error for debugging
       console.error('Error in getLibraryBorrowRequests:', error);
-
       throw new InternalServerErrorException(
         'An error occurred while retrieving borrow requests for the library',
       );
@@ -271,40 +272,43 @@ export class BookService {
     }
   }
 
-  async updateThumbnail(bookId: number, thumbnail: string): Promise<Book | any> {
+  async updateThumbnail(
+    bookId: number,
+    thumbnail: string,
+  ): Promise<Book | any> {
     const book = await this.bookModel.findByPk(bookId);
     if (!book) {
       throw new NotFoundException(`Book with id ${bookId} not found`);
     }
     /*
-      * todo:
-      * add logic to update thumbnail from the cloudify shandic
-    */
+     * todo:
+     * add logic to update thumbnail from the cloudify shandic
+     */
     await this.bookModel.update({ thumbnail }, { where: { id: bookId } });
 
     const updatedBook = await this.bookModel.findByPk(bookId);
     if (!updatedBook) {
-      throw new InternalServerErrorException('Unable to retrieve the updated book');
+      throw new InternalServerErrorException(
+        'Unable to retrieve the updated book',
+      );
     }
 
     return updatedBook;
   }
 
   async borrowedBooks(borrower_id: number): Promise<Book[]> {
-    const booksModel = this.bookModel.findAll(
-      {
-        where: {
-          borrower_id: borrower_id
-        }
-      }
-    );
-    return booksModel
+    const booksModel = this.bookModel.findAll({
+      where: {
+        borrower_id: borrower_id,
+      },
+    });
+    return booksModel;
   }
 
   /*
-  * TODO:
-  * create a typefor this DTO:
-  */
+   * TODO:
+   * create a typefor this DTO:
+   */
   async createBookHandover(handoverDetails: {
     book_id: number;
     meeting_date: Date;
@@ -330,7 +334,7 @@ export class BookService {
           book_id: handoverDetails.book_id,
           borrower_id: handoverDetails.borrower_id,
           lender_id: book?.toJSON().owner_id,
-          book_handover_type: handoverDetails?.book_handover_type || "borrow",
+          book_handover_type: handoverDetails?.book_handover_type || 'borrow',
         },
       });
 
@@ -345,14 +349,14 @@ export class BookService {
           last_editor_id: handoverDetails.lastEditorId,
           handover_status: handoverDetails.handover_status,
           handover_pin: handoverDetails.handover_pin,
-          book_handover_type: handoverDetails?.book_handover_type || "borrow", // verify that this is correct
+          book_handover_type: handoverDetails?.book_handover_type || 'borrow', // verify that this is correct
         });
         return updatedHandover;
       }
 
       const newHandover = await this.bookHandoverModel.create({
         handover_confirmed: false,
-        handover_status: "pending",
+        handover_status: 'pending',
         book_id: handoverDetails.book_id,
         lender_id: book?.toJSON().owner_id,
         borrower_id: handoverDetails.borrower_id,
@@ -369,28 +373,33 @@ export class BookService {
       return newHandover;
     } catch (error) {
       console.error('Error in createBookHandover:', error);
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new InternalServerErrorException(
-        'An error occurred while creating the book handover'
+        'An error occurred while creating the book handover',
       );
     }
   }
 
   /*
-    * TODO:
-    * ensure that user has one request for book eath time
-  */
+   * TODO:
+   * ensure that user has one request for book eath time
+   */
   async getBookHandoverByBookId(bookId: number) {
     try {
       const handover = await this.bookHandoverModel.findOne({
         where: { book_id: bookId },
-        order: [['createdat', 'DESC']]
+        order: [['createdat', 'DESC']],
       });
 
       if (!handover) {
-        throw new NotFoundException(`Handover record for bookId ${bookId} not found`);
+        throw new NotFoundException(
+          `Handover record for bookId ${bookId} not found`,
+        );
       }
 
       return handover;

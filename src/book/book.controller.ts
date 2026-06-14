@@ -21,8 +21,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class BookController {
   constructor(
     private readonly bookService: BookService,
-    private readonly imageFactory: ImageFactory
-  ) { }
+    private readonly imageFactory: ImageFactory,
+  ) {}
 
   @UseGuards(AuthGuard)
   @Get('library/:libraryId')
@@ -42,7 +42,6 @@ export class BookController {
   @UseGuards(AuthGuard)
   @Post('/new')
   async create(@Body() bookData: Partial<Book>): Promise<Book> {
-    console.log('testing the book: ', bookData);
     return await this.bookService.create({
       thumbnail: bookData.thumbnail,
       borrower_id: bookData.borrower_id,
@@ -57,7 +56,7 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':id')
+  @Put('update/:id')
   async update(
     @Param('id') id: number,
     @Body() updateData: Partial<Book>,
@@ -78,13 +77,13 @@ export class BookController {
   @UseGuards(AuthGuard)
   @Post('borrow/:requestId/approve')
   async approveBorrow(@Param('requestId') requestId: number) {
-    return this.bookService.respondToBorrow(requestId, "approved");
+    return this.bookService.respondToBorrow(requestId, 'approved');
   }
 
   @UseGuards(AuthGuard)
   @Post('borrow/:requestId/reject')
   async rejectBorrow(@Param('requestId') requestId: number) {
-    return this.bookService.respondToBorrow(requestId, "rejected");
+    return this.bookService.respondToBorrow(requestId, 'rejected');
   }
 
   @UseGuards(AuthGuard)
@@ -138,9 +137,10 @@ export class BookController {
     @Body('meeting_time') meetingTime: string,
     @Body('borrower_phone_number') borrowerPhoneNumber: string,
     @Body('lender_phone_number') lenderPhoneNumber: string,
-    @Body('handover_status') handoverStatus: 'pending' | 'approved' | 'rejected',
+    @Body('handover_status')
+    handoverStatus: 'pending' | 'approved' | 'rejected',
     @Body('handover_confirmed') handoverConfirmed: boolean,
-    @Body('book_handover_type') bookHandoverType: "return" | "borrow",
+    @Body('book_handover_type') bookHandoverType: 'return' | 'borrow',
   ) {
     return this.bookService.createBookHandover({
       book_id: bookId,
@@ -154,7 +154,9 @@ export class BookController {
       handover_status: handoverStatus,
       handover_confirmed: handoverConfirmed,
       book_handover_type: bookHandoverType,
-      handover_pin: handoverConfirmed ? Math.floor(100000 + Math.random() * 2000) : undefined
+      handover_pin: handoverConfirmed
+        ? Math.floor(100000 + Math.random() * 2000)
+        : undefined,
     });
   }
 
