@@ -262,6 +262,27 @@ Modify the `bootstrap` function to include migrations:
 
 ---
 
+### Stariting Postgres (MAC OS):
+1. Install homewbrew if you have not yet
+```
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+2. Now install postgres
+```
+   brew update
+   brew install postgresql
+```
+3. Check that its installed correctly
+```
+   psql --version
+```
+4. Start the postgres service
+```
+   brew services start postgresql
+```
+
+
+
 ## Todo:
 
 - we need to add module on the app allowing us to record isbn numbers, currently when the search failes we just try to let user input it instead of adding it also.

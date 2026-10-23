@@ -50,14 +50,22 @@ export class BookService {
           console.error('Error verifying token:', err);
         });
 
-      const library_owner = await this.libraryModel.findOne({
-        where: {
-          id: libraryId,
-          user_id: userId,
-        },
-      });
+        // this returns library object not library owner - wats this there to find out if user is owner or to check if this library exists?
+        // for maintaining i will assume if means user is owner.
+        const library_owner = await this.libraryModel.findOne({
+          where: {
+            id: libraryId,
+            user_id: userId,
+          },
+        });
 
-      if (!library_owner) {
+        const libraryData = library_owner?.toJSON();
+      console.log("libraryCollection: libraryId", {
+        userId: userId,
+        library_owner:library_owner?.toJSON()
+      })
+
+      if (!libraryData) {
         const access = await this.libraryAccessModel.findOne({
           where: {
             library_id: libraryId,
@@ -67,12 +75,23 @@ export class BookService {
         });
 
         if (access) {
+          const library = await this.libraryModel.findOne({
+            where: { id: libraryId },
+          });
+
+          if (!library) {
+            throw new NotFoundException('Library not found');
+          }
+
           return this.bookModel.findAll({
-            where: { library_id: libraryId },
+            where: {
+              library_id: libraryId,
+              owner_id: library.user_id,
+            },
           });
         }
 
-        if (!access && !!library_owner) {
+        if (library_owner) {
           throw new BadRequestException(
             'You do not have access to this library',
           );
