@@ -129,7 +129,7 @@ export class LibraryController {
     @Body() requestData: BookBatchRequestDto,
   ) {
     const userId = req.user.id;
-    const incomingBookList = requestData['book/list'];
+    const incomingBookList = requestData['booklist'];
     return this.libraryService.processBookBatchWithReport(userId, libraryId, incomingBookList);
   }
 }

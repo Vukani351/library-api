@@ -1,8 +1,6 @@
 import { Type } from 'class-transformer';
 import { ValidateNested, IsArray, ArrayNotEmpty, IsString, IsNotEmpty, IsInt, IsOptional, IsEnum, IsDateString } from 'class-validator';
 
-// 1. DTO representing a *single* book object to be created.
-// This matches the required fields from your actual Book Model.
 export class CreateBookInputDto {
   @IsString()
   @IsNotEmpty({ message: 'Title is required for creation.' })
@@ -48,5 +46,5 @@ export class BookBatchRequestDto {
   @ArrayNotEmpty({ message: 'The book list must not be empty.' })
   @ValidateNested({ each: true }) // Crucial: Tells validator to check *every* item in the array
   @Type(() => CreateBookInputDto) // Crucial: Tells class-transformer how to convert the plain objects
-  'book/list': CreateBookInputDto[]; // Exact property name expected in JSON body
+  'booklist': CreateBookInputDto[]; // Exact property name expected in JSON body
 }
