@@ -13,6 +13,7 @@ import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
+import { Error } from 'sequelize';
 
 type HandoverStatus = 'pending' | 'approved' | 'rejected';
 
@@ -38,7 +39,8 @@ export class BookService {
       const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.split(' ')[1];
       if (!token) {
-        throw new Error('Token not found');
+        console.error('Token not found');
+        return [];
       }
 
       const userId = await this.jwtService
@@ -57,13 +59,9 @@ export class BookService {
             id: libraryId,
             user_id: userId,
           },
-        });
+      });
 
-        const libraryData = library_owner?.toJSON();
-      console.log("libraryCollection: libraryId", {
-        userId: userId,
-        library_owner:library_owner?.toJSON()
-      })
+      const libraryData = library_owner?.toJSON();
 
       if (!libraryData) {
         const access = await this.libraryAccessModel.findOne({
@@ -133,9 +131,7 @@ export class BookService {
       // ADD THIS LOG TO SEE THE EXACT PROBLEM IN YOUR TERMINAL
       console.error('Sequelize Update Error:', error);
 
-      throw new InternalServerErrorException(
-        `Failed to update book with id ${id}. Reason: ${error.message}`,
-      );
+      throw error;
     }
   }
 

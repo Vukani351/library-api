@@ -279,6 +279,8 @@ Modify the `bootstrap` function to include migrations:
 4. Start the postgres service
 ```
    brew services start postgresql
+   or
+   brew services stop postgresql@14
 ```
 
 

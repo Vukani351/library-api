@@ -11,12 +11,14 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import { LibraryService } from './library.service';
 import { Library } from '../models/library.model';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageFactory } from 'src/cloudinary/image.factory';
+import { BookBatchRequestDto } from 'src/dto/CreateBookInputDto';
 
 @Controller('library')
 export class LibraryController {
@@ -119,5 +121,15 @@ export class LibraryController {
     return updatedLibrary;
   }
 
-  // :id/borrow-history
+  @UseGuards(AuthGuard)
+  @Post(':libraryId/batch-create')
+  async batchCreateBooks(
+    @Req() req: any,
+    @Param('libraryId') libraryId: number,
+    @Body() requestData: BookBatchRequestDto,
+  ) {
+    const userId = req.user.id;
+    const incomingBookList = requestData['book/list'];
+    return this.libraryService.processBookBatchWithReport(userId, libraryId, incomingBookList);
+  }
 }

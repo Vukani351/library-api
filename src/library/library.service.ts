@@ -1,18 +1,24 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, Logger } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/sequelize';
 import { InjectModel } from '@nestjs/sequelize';
 import { Library } from '../models/library.model';
 import { LibraryAccess } from 'src/models/library-access.model';
 import { User } from 'src/models/user.model';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
+import { CreateBookInputDto } from 'src/dto/CreateBookInputDto';
+import { Book } from 'src/models/book.model';
 
 @Injectable()
 export class LibraryService {
+  private readonly logger = new Logger(LibraryService.name);
+  
   constructor(
     @InjectModel(Library) private libraryModel: typeof Library,
-    @InjectModel(LibraryAccess)
-    private libraryAccessModel: typeof LibraryAccess,
+    @InjectModel(Book) private readonly bookModel: typeof Book,
+    @InjectConnection() private readonly sequelize: Sequelize,
+    @InjectModel(LibraryAccess) private libraryAccessModel: typeof LibraryAccess,
     @InjectModel(User) private UserModel: typeof User,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Library[]> {
     return this.libraryModel.findAll();
@@ -39,7 +45,8 @@ export class LibraryService {
       return libraries;
     } catch (error) {
       console.error('Error in getLibraryByName:', error);
-      throw new InternalServerErrorException('Sorry, there is an issue with library by name. ' + error.message);
+      console.error('Sorry, there is an issue with library by name. ');
+      throw error;
     }
   }
 
@@ -109,7 +116,6 @@ export class LibraryService {
     if (existingRequest) {
       return existingRequest;
     }
-    console.dir({ userId, libraryDetails }, { depth: null });
     return this.libraryAccessModel.create({
       user_id: userId,
       library_id: libraryId,
@@ -171,7 +177,7 @@ export class LibraryService {
 
       return libraryRequests;
     } catch (error) {
-      throw new Error('Sorry, there is an issue. Please try requesting library requests again.\n', error);
+      throw error;
     }
   }
 
@@ -262,5 +268,52 @@ export class LibraryService {
       console.error('Failed to update library thumbnail:\n', error);
       return null
     }
+  }
+  async processBookBatchWithReport(
+    userId: number,
+    libraryId: number,
+    bookInputList: CreateBookInputDto[],
+  ) {
+    const libraryData = await this.fetchLibraryData(libraryId);
+    if (libraryData.user_id !== userId) {
+      throw new NotFoundException('You do not own this library.');
+    }
+
+    const failureList: { bookTitle?: string; error: string; data: CreateBookInputDto }[] = [];
+    const successfulInsertions: Book[] = [];
+
+    return this.sequelize.transaction(async (t) => {
+      this.logger.log(`Starting transaction for batch of ${bookInputList.length} books.`);
+
+      for (const bookInput of bookInputList) {
+        try {
+          const newBook = await this.bookModel.create(bookInput as any, {
+            transaction: t,
+          });
+          successfulInsertions.push(newBook);
+        } catch (error) {
+          this.logger.error(`Failed to insert book: ${bookInput.title}`, error);
+
+          failureList.push({
+            bookTitle: bookInput.title,
+            error: error instanceof Error ? error.message : 'Unknown database error',
+            data: bookInput,
+          });
+        }
+      }
+
+      this.logger.log(`Processed ${bookInputList.length} total. ${successfulInsertions.length} success, ${failureList.length} failure.`);
+
+      return {
+        message: `Batch process completed. ${failureList.length} failure(s) occurred.`,
+        summary: {
+          totalProcessed: bookInputList.length,
+          successCount: successfulInsertions.length,
+          failureCount: failureList.length,
+        },
+        failures: failureList,
+        inserted: successfulInsertions,
+      };
+    });
   }
 }
