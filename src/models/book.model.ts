@@ -3,10 +3,8 @@ import {
   Column,
   Model,
   DataType,
-  ForeignKey,
+  HasMany,
 } from 'sequelize-typescript';
-import { User } from './user.model';
-import { Library } from './library.model';
 
 @Table({
   tableName: 'book',
@@ -35,6 +33,19 @@ export class Book extends Model<Book> {
   declare author: string;
 
   @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+  })
+  declare isbn: string;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+    unique: 'unique_isbn_key',
+  })
+  declare isbn_unique: string;
+
+  @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
@@ -46,49 +57,6 @@ export class Book extends Model<Book> {
   })
   declare description: string;
 
-  @ForeignKey(() => User)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-    onDelete: 'CASCADE',
-  })
-  declare owner_id: number;
-
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  declare borrower_id: number;
-
-  @ForeignKey(() => Library)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-    onDelete: 'CASCADE',
-  })
-  declare library_id: number;
-
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
-  declare is_private: boolean;
-
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW,
-  })
-  declare borrowed_at: Date;
-
-  @Column({
-    type: DataType.DATE,
-    allowNull: true,
-  })
-  declare return_by_date: Date;
-
-  @Column({
-    type: DataType.STRING(100),
-    allowNull: false,
-  })
-  declare status: string;
+  @HasMany(() => require('./library-book.model').LibraryBook)
+  declare library_books?: any[];
 }

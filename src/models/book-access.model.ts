@@ -1,17 +1,17 @@
-// change this name to book-borrow-request.model.ts
 import {
   Table,
   Column,
   Model,
   ForeignKey,
   DataType,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { User } from './user.model';
-import { Book } from './book.model';
 import { Library } from './library.model';
 
 @Table({
   tableName: 'book_access',
+  timestamps: true,
   createdAt: 'createdat',
   updatedAt: 'updatedat'
 })
@@ -23,13 +23,13 @@ export class BookRequest extends Model<BookRequest> {
   })
   declare id: number;
 
-  @ForeignKey(() => Book)
+  @ForeignKey(() => require('./library-book.model').LibraryBook)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
     onDelete: 'CASCADE',
   })
-  declare book_id: number;
+  declare library_book_id: number;
 
   @ForeignKey(() => User)
   @Column({
@@ -72,4 +72,16 @@ export class BookRequest extends Model<BookRequest> {
     allowNull: true,
   })
   declare return_by_date: Date;
+
+  @BelongsTo(() => require('./library-book.model').LibraryBook)
+  declare library_book?: any;
+
+  @BelongsTo(() => User, 'borrower_id')
+  declare borrower?: User;
+
+  @BelongsTo(() => User, 'owner_id')
+  declare owner?: User;
+
+  @BelongsTo(() => Library)
+  declare library?: Library;
 }

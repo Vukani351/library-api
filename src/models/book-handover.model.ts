@@ -4,8 +4,8 @@ import {
   Model,
   ForeignKey,
   DataType,
+  BelongsTo,
 } from 'sequelize-typescript';
-import { Book } from './book.model';
 import { User } from './user.model';
 
 @Table({
@@ -22,12 +22,12 @@ export class BookHandover extends Model<BookHandover> {
   })
   declare id: number;
 
-  @ForeignKey(() => Book)
+  @ForeignKey(() => require('./library-book.model').LibraryBook)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare book_id: number;
+  declare library_book_id: number;
 
   @ForeignKey(() => User)
   @Column({
@@ -111,4 +111,16 @@ export class BookHandover extends Model<BookHandover> {
     allowNull: true,
   })
   declare handover_pin: number;
+
+  @BelongsTo(() => require('./library-book.model').LibraryBook)
+  declare library_book?: any;
+
+  @BelongsTo(() => User, 'lender_id')
+  declare lender?: User;
+
+  @BelongsTo(() => User, 'borrower_id')
+  declare borrower?: User;
+
+  @BelongsTo(() => User, 'last_editor_id')
+  declare last_editor?: User;
 }

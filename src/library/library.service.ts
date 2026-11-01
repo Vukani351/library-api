@@ -7,17 +7,21 @@ import { User } from 'src/models/user.model';
 import { Op, Sequelize } from 'sequelize';
 import { CreateBookInputDto } from 'src/dto/CreateBookInputDto';
 import { Book } from 'src/models/book.model';
+import { LibraryBook } from 'src/models/library-book.model';
+import { BookService } from 'src/book/book.service';
 
 @Injectable()
 export class LibraryService {
   private readonly logger = new Logger(LibraryService.name);
-  
+
   constructor(
     @InjectModel(Library) private libraryModel: typeof Library,
     @InjectModel(Book) private readonly bookModel: typeof Book,
+    @InjectModel(LibraryBook) private readonly libraryBookModel: typeof LibraryBook,
     @InjectConnection() private readonly sequelize: Sequelize,
     @InjectModel(LibraryAccess) private libraryAccessModel: typeof LibraryAccess,
     @InjectModel(User) private UserModel: typeof User,
+    private readonly bookService: BookService,
   ) {}
 
   async findAll(): Promise<Library[]> {
@@ -269,6 +273,13 @@ export class LibraryService {
       return null
     }
   }
+  /**
+   * Process batch book import with find-or-create logic
+   * - Finds or creates catalog books based on ISBN or normalized title+author
+   * - Creates library_book copies for each book in the library
+   * - Derives library_id and owner_id from request context (not from payload)
+   * - Uses savepoints to allow partial success if one insert fails
+   */
   async processBookBatchWithReport(
     userId: number,
     libraryId: number,
@@ -280,17 +291,33 @@ export class LibraryService {
     }
 
     const failureList: { bookTitle?: string; error: string; data: CreateBookInputDto }[] = [];
-    const successfulInsertions: Book[] = [];
+    const successfulInsertions: LibraryBook[] = [];
 
     return this.sequelize.transaction(async (t) => {
       this.logger.log(`Starting transaction for batch of ${bookInputList.length} books.`);
 
       for (const bookInput of bookInputList) {
+        const savepointId = `sp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
         try {
-          const newBook = await this.bookModel.create(bookInput as any, {
-            transaction: t,
+          // Create savepoint for partial success
+          await this.sequelize.query(`SAVEPOINT ${savepointId}`, { transaction: t });
+          // Use BookService's find-or-create logic
+          const libraryBook = await this.bookService.create({
+            title: bookInput.title,
+            author: bookInput.author,
+            isbn: bookInput.isbn || null,
+            thumbnail: bookInput.thumbnail || null,
+            description: bookInput.description || null,
+            // Override payload values with context values for security
+            library_id: libraryId,
+            owner_id: userId,
+            status: bookInput.status || 'active',
+            is_private: bookInput.is_private ?? false,
+            borrower_id: null,
+            return_by_date: bookInput.return_by_date || null,
+            borrowed_at: new Date(),
           });
-          successfulInsertions.push(newBook);
+          successfulInsertions.push(libraryBook);
         } catch (error) {
           this.logger.error(`Failed to insert book: ${bookInput.title}`, error);
 
@@ -299,6 +326,13 @@ export class LibraryService {
             error: error instanceof Error ? error.message : 'Unknown database error',
             data: bookInput,
           });
+
+          // Rollback to savepoint on error, but continue processing
+          try {
+            await this.sequelize.query(`ROLLBACK TO SAVEPOINT ${savepointId}`, { transaction: t });
+          } catch (e) {
+            this.logger.warn('Savepoint rollback failed, continuing', e);
+          }
         }
       }
 

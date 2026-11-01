@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BookController } from './book.controller';
 import { Book } from '../models/book.model';
+import { LibraryBook } from '../models/library-book.model';
 import { BookService } from './book.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
@@ -15,12 +16,13 @@ import { BookHandover } from 'src/models/book-handover.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Book, BookRequest, LibraryAccess, Library, User, BookHandover]),
+    SequelizeModule.forFeature([Book, LibraryBook, BookRequest, LibraryAccess, Library, User, BookHandover]),
     JwtModule.register({
       secret: jwtConstants.secret,
     }),
   ],
   controllers: [BookController],
   providers: [BookService, CloudinaryService, ImageFactory],
+  exports: [BookService],
 })
 export class BookModule {}

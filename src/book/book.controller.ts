@@ -34,44 +34,48 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Book> {
-    return this.bookService.findOne(id);
+  @Get(':libraryBookId')
+  async findOne(@Param('libraryBookId') libraryBookId: number): Promise<any> {
+    return this.bookService.findOne(libraryBookId);
   }
 
   @UseGuards(AuthGuard)
   @Post('/new')
-  async create(@Body() bookData: Partial<Book>): Promise<Book> {
+  async create(@Body() bookData: any, @Req() req: any): Promise<any> {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new NotFoundException('User not authenticated');
+    }
     return await this.bookService.create({
       thumbnail: bookData.thumbnail,
-      borrower_id: bookData.borrower_id,
       description: bookData.description,
-      owner_id: bookData.owner_id,
       library_id: bookData.library_id,
       title: bookData.title,
       author: bookData.author,
+      isbn: bookData['isbn'] || null,
+      owner_id: userId,  // Use JWT user ID, not payload
       status: 'active',
-      is_private: bookData.is_private || true,
+      is_private: bookData.is_private ?? false,  // Default to false, not true
     });
   }
 
   @UseGuards(AuthGuard)
-  @Put('update/:id')
+  @Put('update/:libraryBookId')
   async update(
-    @Param('id') id: number,
-    @Body() updateData: Partial<Book>,
-  ): Promise<Book> {
-    return this.bookService.updateBook(id, updateData);
+    @Param('libraryBookId') libraryBookId: number,
+    @Body() updateData: Partial<any>,
+  ): Promise<any> {
+    return this.bookService.updateBook(libraryBookId, updateData);
   }
 
   @UseGuards(AuthGuard)
-  @Post(':bookId/request-borrow')
+  @Post(':libraryBookId/request-borrow')
   async requestBorrow(
-    @Param('bookId') bookId: number,
+    @Param('libraryBookId') libraryBookId: number,
     @Body('borrowerId') borrowerId: number,
     @Body('returnByDate') returnByDate: Date,
   ) {
-    return this.bookService.requestBorrow(bookId, borrowerId, returnByDate);
+    return this.bookService.requestBorrow(libraryBookId, borrowerId, returnByDate);
   }
 
   @UseGuards(AuthGuard)
@@ -97,39 +101,44 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('requests/:bookId')
-  async getLibraryBorrowRequests(@Param('bookId') bookId: number) {
-    return this.bookService.getLibraryBorrowRequests(bookId);
+  @Get('requests/:libraryBookId')
+  async getLibraryBorrowRequests(@Param('libraryBookId') libraryBookId: number) {
+    return this.bookService.getLibraryBorrowRequests(libraryBookId);
   }
 
   @UseGuards(AuthGuard)
-  @Get(':bookId')
-  async getBookById(@Param('bookId') bookId: number): Promise<Book> {
-    return this.bookService.getById(bookId);
+  @Get(':libraryBookId')
+  async getBookById(@Param('libraryBookId') libraryBookId: number): Promise<any> {
+    return this.bookService.getById(libraryBookId);
   }
 
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('thumbnail'))
-  @Post(':bookId/thumbnail')
+  @Post(':libraryBookId/thumbnail')
   async updateThumbnail(
-    @Param('bookId') bookId: number,
+    @Param('libraryBookId') libraryBookId: number,
     @UploadedFile() thumbnail: Express.Multer.File,
-  ): Promise<Book> {
+  ): Promise<any> {
     if (!thumbnail) {
       throw new NotFoundException('Thumbnail is required');
     }
+
+    // Get the library_book to find the associated catalog book
+    const copy = await this.bookService.getById(libraryBookId);
 
     const publicUrl = await this.imageFactory.saveImage(
       'book_thumbnail',
       thumbnail,
     );
-    return this.bookService.updateThumbnail(bookId, publicUrl);
+
+    // Update the shared catalog book thumbnail
+    return this.bookService.updateThumbnail(copy.book_id, publicUrl);
   }
 
   @UseGuards(AuthGuard)
-  @Post(':bookId/handover')
+  @Post(':libraryBookId/handover')
   async createBookHandover(
-    @Param('bookId') bookId: number,
+    @Param('libraryBookId') libraryBookId: number,
     @Body('meeting_location') meetingLocation: string,
     @Body('last_editor_id') lastEditorId: number,
     @Body('borrower_id') borrowerId: number,
@@ -143,7 +152,7 @@ export class BookController {
     @Body('book_handover_type') bookHandoverType: 'return' | 'borrow',
   ) {
     return this.bookService.createBookHandover({
-      book_id: bookId,
+      library_book_id: libraryBookId,
       borrower_id: borrowerId,
       borrower_phone_number: borrowerPhoneNumber,
       lastEditorId: lastEditorId,
@@ -161,14 +170,14 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':bookId/handover')
-  async getBookHandover(@Param('bookId') bookId: number) {
-    return this.bookService.getBookHandoverByBookId(bookId);
+  @Get(':libraryBookId/handover')
+  async getBookHandover(@Param('libraryBookId') libraryBookId: number) {
+    return this.bookService.getBookHandoverByBookId(libraryBookId);
   }
 
   @UseGuards(AuthGuard)
   @Get(':borrowerId/borrowed')
-  async find(@Param('borrowerId') borrowerId: number): Promise<Book[]> {
+  async find(@Param('borrowerId') borrowerId: number): Promise<any[]> {
     return this.bookService.borrowedBooks(borrowerId);
   }
 }
