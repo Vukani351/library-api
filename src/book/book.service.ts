@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { InjectConnection } from '@nestjs/sequelize';
 import { Book } from '../models/book.model';
 import { LibraryBook } from '../models/library-book.model';
 import { jwtConstants } from 'src/constants/jwtConstants';
@@ -14,13 +16,24 @@ import { LibraryAccess } from 'src/models/library-access.model';
 import { Library } from 'src/models/library.model';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
-import { Error } from 'sequelize';
-import { Op } from 'sequelize';
-import { CreateWishlistBookDto, CreateWishlistDto } from 'src/dto/CreateWishlistDto';
+import { Error, Op, Sequelize } from 'sequelize';
+import {
+  CreateWishlistBookDto,
+  CreateWishlistDto,
+} from 'src/dto/CreateWishlistDto';
 import { UpdateWishlistDto } from 'src/dto/UpdateWishlistDto';
 import { Wishlist } from 'src/models/wishlist.model';
+import { WishlistBook } from 'src/models/wishlist-book.model';
 
 type HandoverStatus = 'pending' | 'approved' | 'rejected';
+
+type WishlistBookWithBook = {
+  id: number;
+  wishlist_id: number;
+  book_id: number;
+  category: string | null;
+  book: Book;
+};
 
 @Injectable()
 export class BookService {
@@ -39,11 +52,142 @@ export class BookService {
     private bookHandoverModel: typeof BookHandover,
     @InjectModel(Wishlist)
     private wishlistModel: typeof Wishlist,
+    @InjectModel(WishlistBook)
+    private wishlistBookModel: typeof WishlistBook,
+    @InjectConnection()
+    private readonly sequelize: Sequelize,
     private readonly jwtService: JwtService,
   ) {}
 
-  createWishlist(wishlist: CreateWishlistDto): void {
-    console.log('Create wishlist request:', wishlist);
+  async createWishlist(
+    userId: number,
+    wishlistData: CreateWishlistDto,
+  ): Promise<{ wishlist: Wishlist; wishlist_book: WishlistBook[] }> {
+    const wishlistBooks = wishlistData.wishlist_book ?? [];
+    const bookIds = wishlistBooks.map(({ book_id }) => book_id);
+
+    if (new Set(bookIds).size !== bookIds.length) {
+      throw new BadRequestException(
+        'A book can only be added once to a wishlist',
+      );
+    }
+
+    return this.sequelize.transaction(async (transaction) => {
+      if (bookIds.length > 0) {
+        const books = await this.bookModel.findAll({
+          where: { id: { [Op.in]: bookIds } },
+          attributes: ['id'],
+          transaction,
+        });
+
+        if (books.length !== bookIds.length) {
+          throw new NotFoundException('One or more books were not found');
+        }
+      }
+
+      const wishlist = await this.wishlistModel.create(
+        {
+          user_id: userId,
+          name: wishlistData.name,
+          description: wishlistData.description,
+          accessibility: wishlistData.accessibility ?? false,
+        } as Wishlist,
+        { transaction },
+      );
+
+      const createdWishlistBooks = wishlistBooks.length
+        ? await this.wishlistBookModel.bulkCreate(
+            wishlistBooks.map(({ book_id, category }) => ({
+              wishlist_id: wishlist.id,
+              book_id,
+              category,
+            })) as WishlistBook[],
+            { transaction },
+          )
+        : [];
+
+      return {
+        wishlist,
+        wishlist_book: createdWishlistBooks,
+      };
+    });
+  }
+
+  async createWishlistBook(
+    wishlistId: number,
+    userId: number,
+    wishlistBookData: CreateWishlistBookDto,
+  ): Promise<WishlistBook> {
+    const wishlist = await this.wishlistModel.findOne({
+      where: { id: wishlistId, user_id: userId },
+    });
+
+    if (!wishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    const book = await this.bookModel.findByPk(wishlistBookData.book_id);
+    if (!book) {
+      throw new NotFoundException('Book not found');
+    }
+
+    const existingWishlistBook = await this.wishlistBookModel.findOne({
+      where: { wishlist_id: wishlistId, book_id: wishlistBookData.book_id },
+    });
+
+    if (existingWishlistBook) {
+      throw new ConflictException('Book is already in this wishlist');
+    }
+
+    return this.wishlistBookModel.create({
+      wishlist_id: wishlistId,
+      book_id: wishlistBookData.book_id,
+      category: wishlistBookData.category,
+    } as WishlistBook);
+  }
+
+  async getWishlist(wishlistId: number, userId: number): Promise<
+    Pick<
+      Wishlist,
+      'id' | 'user_id' | 'name' | 'description' | 'accessibility' | 'status'
+      > & {wishlist_books: WishlistBookWithBook[]}> {
+    const wishlist = await this.wishlistModel.findOne({
+      where: { id: wishlistId, user_id: userId },
+    });
+
+    if (!wishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    const wishlistBooks = await this.wishlistBookModel.findAll({
+      where: { wishlist_id: wishlistId },
+    });
+
+    const bookIds = wishlistBooks.map((wishlistBook) => wishlistBook.book_id);
+    const books = bookIds.length
+    ? await this.bookModel.findAll({ where: { id: { [Op.in]: bookIds } } })
+    : [];
+    const booksById = new Map(books.map((book) => [book.id, book]));
+    
+    const wishlistBookDetails = wishlistBooks.map((wishlistBook) => {
+      const book = booksById.get(wishlistBook.book_id);
+      if (!book) {
+        throw new NotFoundException('A book associated with this wishlist was not found');
+      }
+
+      return {
+        id: wishlistBook.id,
+        wishlist_id: wishlistBook.wishlist_id,
+        book_id: wishlistBook.book_id,
+        category: wishlistBook.category,
+        book,
+      };
+    });
+
+    return {
+      ...wishlist.toJSON(),
+      wishlist_books: wishlistBookDetails,
+    };
   }
 
   async updateWishlist(

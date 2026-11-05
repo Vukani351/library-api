@@ -20,7 +20,10 @@ import { Book } from '../models/book.model';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ImageFactory } from 'src/cloudinary/image.factory';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateWishlistDto } from 'src/dto/CreateWishlistDto';
+import {
+  CreateWishlistBookDto,
+  CreateWishlistDto,
+} from 'src/dto/CreateWishlistDto';
 import { UpdateWishlistDto } from 'src/dto/UpdateWishlistDto';
 
 @Controller('book')
@@ -68,7 +71,45 @@ export class BookController {
   @UseGuards(AuthGuard)
   @Post('wishlist')
   createWishlist(@Body() wishlist: CreateWishlistDto, @Req() req: any) {
-    return this.bookService.createWishlist(wishlist);
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.createWishlist(userId, wishlist);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('wishlist/:wishlistId/books')
+  createWishlistBook(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Body() wishlistBook: CreateWishlistBookDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.createWishlistBook(
+      wishlistId,
+      userId,
+      wishlistBook,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('wishlist/:wishlistId')
+  getWishlist(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.getWishlist(wishlistId, userId);
   }
 
   @UseGuards(AuthGuard)

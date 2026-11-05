@@ -14,6 +14,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
 import { Wishlist } from 'src/models/wishlist.model';
+import { WishlistBook } from 'src/models/wishlist-book.model';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { Wishlist } from 'src/models/wishlist.model';
       User,
       BookHandover,
       Wishlist,
+      WishlistBook,
     ]),
     JwtModule.register({
       secret: jwtConstants.secret,

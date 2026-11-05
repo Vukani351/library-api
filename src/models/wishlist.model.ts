@@ -6,6 +6,7 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { User } from './user.model';
+import type { Book } from './book.model';
 
 @Table({
   tableName: 'wishlist',
