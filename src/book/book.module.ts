@@ -13,10 +13,20 @@ import { ImageFactory } from 'src/cloudinary/image.factory';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
+import { Wishlist } from 'src/models/wishlist.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Book, LibraryBook, BookRequest, LibraryAccess, Library, User, BookHandover]),
+    SequelizeModule.forFeature([
+      Book,
+      LibraryBook,
+      BookRequest,
+      LibraryAccess,
+      Library,
+      User,
+      BookHandover,
+      Wishlist,
+    ]),
     JwtModule.register({
       secret: jwtConstants.secret,
     }),

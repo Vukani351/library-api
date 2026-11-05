@@ -16,6 +16,9 @@ import { User } from 'src/models/user.model';
 import { BookHandover } from 'src/models/book-handover.model';
 import { Error } from 'sequelize';
 import { Op } from 'sequelize';
+import { CreateWishlistBookDto, CreateWishlistDto } from 'src/dto/CreateWishlistDto';
+import { UpdateWishlistDto } from 'src/dto/UpdateWishlistDto';
+import { Wishlist } from 'src/models/wishlist.model';
 
 type HandoverStatus = 'pending' | 'approved' | 'rejected';
 
@@ -34,8 +37,51 @@ export class BookService {
     private userModel: typeof User,
     @InjectModel(BookHandover)
     private bookHandoverModel: typeof BookHandover,
+    @InjectModel(Wishlist)
+    private wishlistModel: typeof Wishlist,
     private readonly jwtService: JwtService,
   ) {}
+
+  createWishlist(wishlist: CreateWishlistDto): void {
+    console.log('Create wishlist request:', wishlist);
+  }
+
+  async updateWishlist(
+    wishlistId: number,
+    userId: number,
+    updateData: UpdateWishlistDto,
+  ): Promise<Wishlist> {
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException('At least one wishlist field is required');
+    }
+
+    const wishlist = await this.wishlistModel.findOne({
+      where: { id: wishlistId, user_id: userId },
+    });
+
+    if (!wishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    await wishlist.update(updateData);
+    return wishlist;
+  }
+
+  async deactivateWishlist(
+    wishlistId: number,
+    userId: number,
+  ): Promise<Wishlist> {
+    const wishlist = await this.wishlistModel.findOne({
+      where: { id: wishlistId, user_id: userId },
+    });
+
+    if (!wishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    await wishlist.update({ status: 'inactive' });
+    return wishlist;
+  }
 
   /**
    * Generate a normalized dedupe key from title and author
@@ -171,7 +217,6 @@ export class BookService {
    * Find a single library copy by ID
    */
   async findOne(id: number): Promise<LibraryBook> {
-    console.log("findOne: ", id);
     const copy = await this.libraryBookModel.findOne({
         where: {
           book_id: id,
@@ -179,10 +224,7 @@ export class BookService {
         },
         include: [{ model: Book, as: 'book' }]
       })
-    
-    // (id, {
-    //   include: [{ model: Book, as: 'book' }],
-    // });
+
     if (!copy) {
       throw new NotFoundException(`Book copy with id ${id} not found`);
     }

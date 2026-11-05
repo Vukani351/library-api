@@ -6,17 +6,23 @@ import {
   Body,
   Param,
   Put,
+  Delete,
   UseGuards,
   Req,
   NotFoundException,
   UploadedFile,
   UseInterceptors,
+  ParseIntPipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { Book } from '../models/book.model';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ImageFactory } from 'src/cloudinary/image.factory';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateWishlistDto } from 'src/dto/CreateWishlistDto';
+import { UpdateWishlistDto } from 'src/dto/UpdateWishlistDto';
+
 @Controller('book')
 export class BookController {
   constructor(
@@ -53,10 +59,45 @@ export class BookController {
       title: bookData.title,
       author: bookData.author,
       isbn: bookData['isbn'] || null,
-      owner_id: userId,  // Use JWT user ID, not payload
+      owner_id: userId,
       status: 'active',
-      is_private: bookData.is_private ?? false,  // Default to false, not true
+      is_private: bookData.is_private ?? false,
     });
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('wishlist')
+  createWishlist(@Body() wishlist: CreateWishlistDto, @Req() req: any) {
+    return this.bookService.createWishlist(wishlist);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('wishlist/:wishlistId')
+  updateWishlist(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Body() updateData: UpdateWishlistDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.updateWishlist(wishlistId, userId, updateData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('wishlist/:wishlistId')
+  deactivateWishlist(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.deactivateWishlist(wishlistId, userId);
   }
 
   @UseGuards(AuthGuard)
@@ -181,4 +222,3 @@ export class BookController {
     return this.bookService.borrowedBooks(borrowerId);
   }
 }
-
