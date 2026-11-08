@@ -221,6 +221,17 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('wishlist/user')
+  getWishlists(@Req() req: any) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.getWishlists(userId);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('wishlist/:wishlistId')
   getWishlist(
     @Param('wishlistId', ParseIntPipe) wishlistId: number,

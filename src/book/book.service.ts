@@ -35,6 +35,11 @@ type WishlistBookWithBook = {
   book: Book;
 };
 
+type WishlistWithBooks = Pick<
+  Wishlist,
+  'id' | 'user_id' | 'name' | 'description' | 'accessibility' | 'status'
+> & { wishlist_books: WishlistBookWithBook[] };
+
 @Injectable()
 export class BookService {
   constructor(
@@ -147,10 +152,8 @@ export class BookService {
   }
 
   async getWishlist(wishlistId: number, userId: number): Promise<
-    Pick<
-      Wishlist,
-      'id' | 'user_id' | 'name' | 'description' | 'accessibility' | 'status'
-      > & {wishlist_books: WishlistBookWithBook[]}> {
+    WishlistWithBooks
+  > {
     const wishlist = await this.wishlistModel.findOne({
       where: { id: wishlistId, user_id: userId },
     });
@@ -225,6 +228,52 @@ export class BookService {
 
     await wishlist.update({ status: 'inactive' });
     return wishlist;
+  }
+
+  async getWishlists(userId: number): Promise<WishlistWithBooks[]> {
+    const wishlists = await this.wishlistModel.findAll({
+      where: { user_id: userId },
+    });
+    const wishlistIds = wishlists.map((wishlist) => wishlist.id);
+    const wishlistBooks = wishlistIds.length
+      ? await this.wishlistBookModel.findAll({
+          where: { wishlist_id: { [Op.in]: wishlistIds } },
+        })
+      : [];
+    const bookIds = [...new Set(wishlistBooks.map(({ book_id }) => book_id))];
+    const books = bookIds.length
+      ? await this.bookModel.findAll({ where: { id: { [Op.in]: bookIds } } })
+      : [];
+    const booksById = new Map(books.map((book) => [book.id, book]));
+    const wishlistBooksByWishlistId = new Map<number, WishlistBookWithBook[]>();
+
+    for (const wishlistBook of wishlistBooks) {
+      const book = booksById.get(wishlistBook.book_id);
+      if (!book) {
+        throw new NotFoundException(
+          'A book associated with this wishlist was not found',
+        );
+      }
+
+      const wishlistBookDetails =
+        wishlistBooksByWishlistId.get(wishlistBook.wishlist_id) ?? [];
+      wishlistBookDetails.push({
+        id: wishlistBook.id,
+        wishlist_id: wishlistBook.wishlist_id,
+        book_id: wishlistBook.book_id,
+        category: wishlistBook.category,
+        book,
+      });
+      wishlistBooksByWishlistId.set(
+        wishlistBook.wishlist_id,
+        wishlistBookDetails,
+      );
+    }
+
+    return wishlists.map((wishlist) => ({
+      ...wishlist.toJSON(),
+      wishlist_books: wishlistBooksByWishlistId.get(wishlist.id) ?? [],
+    }));
   }
 
   /**
