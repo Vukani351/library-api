@@ -273,4 +273,44 @@ export class BookController {
 
     return this.bookService.deactivateWishlist(wishlistId, userId);
   }
+
+  @UseGuards(AuthGuard)
+  @Delete('wishlist/:wishlistId/book/:wishlistItemId')
+  deleteWishlistItem(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Param('wishlistItemId', ParseIntPipe) wishlistItemId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.deleteWishlistItem(
+      wishlistId,
+      wishlistItemId,
+      userId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('wishlist/:wishlistId/book/:wishlistItemId')
+  updateWishlistItem(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Param('wishlistItemId', ParseIntPipe) wishlistItemId: number,
+    @Body('wishlist_id', ParseIntPipe) destinationWishlistId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.updateWishlistItem(
+      wishlistId,
+      wishlistItemId,
+      destinationWishlistId,
+      userId,
+    );
+  }
 }

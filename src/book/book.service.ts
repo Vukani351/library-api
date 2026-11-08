@@ -276,6 +276,77 @@ export class BookService {
     }));
   }
 
+  async deleteWishlistItem(
+    wishlistId: number,
+    wishlistItemId: number,
+    userId: number,
+  ): Promise<WishlistBook> {
+    const wishlist = await this.wishlistModel.findOne({
+      where: { id: wishlistId, user_id: userId },
+    });
+
+    if (!wishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    const wishlistItem = await this.wishlistBookModel.findOne({
+      where: { id: wishlistItemId, wishlist_id: wishlistId },
+    });
+
+    if (!wishlistItem) {
+      throw new NotFoundException('Wishlist item not found');
+    }
+
+    await wishlistItem.destroy();
+    return wishlistItem;
+  }
+
+  async updateWishlistItem(
+    wishlistId: number,
+    wishlistItemId: number,
+    destinationWishlistId: number,
+    userId: number,
+  ): Promise<WishlistBook> {
+    const [sourceWishlist, destinationWishlist] = await Promise.all([
+      this.wishlistModel.findOne({
+        where: { id: wishlistId, user_id: userId },
+      }),
+      this.wishlistModel.findOne({
+        where: { id: destinationWishlistId, user_id: userId },
+      }),
+    ]);
+
+    if (!sourceWishlist || !destinationWishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    const wishlistItem = await this.wishlistBookModel.findOne({
+      where: { id: wishlistItemId, wishlist_id: wishlistId },
+    });
+
+    if (!wishlistItem) {
+      throw new NotFoundException('Wishlist item not found');
+    }
+
+    if (wishlistId === destinationWishlistId) {
+      return wishlistItem;
+    }
+
+    const existingItem = await this.wishlistBookModel.findOne({
+      where: {
+        wishlist_id: destinationWishlistId,
+        book_id: wishlistItem.book_id,
+      },
+    });
+
+    if (existingItem) {
+      throw new ConflictException('Book is already in the destination wishlist');
+    }
+
+    await wishlistItem.update({ wishlist_id: destinationWishlistId });
+    return wishlistItem;
+  }
+
   /**
    * Generate a normalized dedupe key from title and author
    */
