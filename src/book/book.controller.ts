@@ -69,79 +69,6 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('wishlist')
-  createWishlist(@Body() wishlist: CreateWishlistDto, @Req() req: any) {
-    const userId = req.user?.id;
-    if (typeof userId !== 'number') {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    return this.bookService.createWishlist(userId, wishlist);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('wishlist/:wishlistId/books')
-  createWishlistBook(
-    @Param('wishlistId', ParseIntPipe) wishlistId: number,
-    @Body() wishlistBook: CreateWishlistBookDto,
-    @Req() req: any,
-  ) {
-    const userId = req.user?.id;
-    if (typeof userId !== 'number') {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    return this.bookService.createWishlistBook(
-      wishlistId,
-      userId,
-      wishlistBook,
-    );
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('wishlist/:wishlistId')
-  getWishlist(
-    @Param('wishlistId', ParseIntPipe) wishlistId: number,
-    @Req() req: any,
-  ) {
-    const userId = req.user?.id;
-    if (typeof userId !== 'number') {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    return this.bookService.getWishlist(wishlistId, userId);
-  }
-
-  @UseGuards(AuthGuard)
-  @Put('wishlist/:wishlistId')
-  updateWishlist(
-    @Param('wishlistId', ParseIntPipe) wishlistId: number,
-    @Body() updateData: UpdateWishlistDto,
-    @Req() req: any,
-  ) {
-    const userId = req.user?.id;
-    if (typeof userId !== 'number') {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    return this.bookService.updateWishlist(wishlistId, userId, updateData);
-  }
-
-  @UseGuards(AuthGuard)
-  @Delete('wishlist/:wishlistId')
-  deactivateWishlist(
-    @Param('wishlistId', ParseIntPipe) wishlistId: number,
-    @Req() req: any,
-  ) {
-    const userId = req.user?.id;
-    if (typeof userId !== 'number') {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    return this.bookService.deactivateWishlist(wishlistId, userId);
-  }
-
-  @UseGuards(AuthGuard)
   @Put('update/:libraryBookId')
   async update(
     @Param('libraryBookId') libraryBookId: number,
@@ -261,5 +188,78 @@ export class BookController {
   @Get(':borrowerId/borrowed')
   async find(@Param('borrowerId') borrowerId: number): Promise<any[]> {
     return this.bookService.borrowedBooks(borrowerId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('wishlist')
+  createWishlist(@Body() wishlist: CreateWishlistDto, @Req() req: any) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.createWishlist(userId, wishlist);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('wishlist/:wishlistId/books')
+  createWishlistBook(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Body() wishlistBook: CreateWishlistBookDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.createWishlistBook(
+      wishlistId,
+      userId,
+      wishlistBook,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('wishlist/:wishlistId')
+  getWishlist(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.getWishlist(wishlistId, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put('wishlist/:wishlistId')
+  updateWishlist(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Body() updateData: UpdateWishlistDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.updateWishlist(wishlistId, userId, updateData);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('wishlist/:wishlistId')
+  deactivateWishlist(
+    @Param('wishlistId', ParseIntPipe) wishlistId: number,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.id;
+    if (typeof userId !== 'number') {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    return this.bookService.deactivateWishlist(wishlistId, userId);
   }
 }
