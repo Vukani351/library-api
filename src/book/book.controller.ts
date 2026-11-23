@@ -202,7 +202,7 @@ export class BookController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('wishlist/:wishlistId/books')
+  @Post('wishlist/:wishlistId/new')
   createWishlistBook(
     @Param('wishlistId', ParseIntPipe) wishlistId: number,
     @Body() wishlistBook: CreateWishlistBookDto,
