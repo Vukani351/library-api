@@ -19,26 +19,30 @@ import { MulterModule } from '@nestjs/platform-express';
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
+        const host = configService.get<string>('DB_HOST');
+        const database = configService.get<string>('DB_DATABASE');
+        console.warn(`Attempting to connect to the database at ${host}/${database}...`);
+
         try {
           return {
             dialect: configService.get<string>('DB_DIALECT') as any,
-            host: configService.get<string>('DB_HOST'),
+            host,
             port: configService.get<number>('DB_PORT'),
             username: configService.get<string>('DB_USER'),
             password: configService.get<string>('DB_PASSWORD'),
-            database: configService.get<string>('DB_DATABASE'),
+            database,
             autoLoadModels: true,
-            synchronize: true, // Auto-sync models (turn off in production)
+            synchronize: true,
           };
         } catch (error) {
-          Logger.error('Failed to connect to the database');
-          throw new Error('Failed to connect to the database');
+          console.error('Failed to prepare database configuration.', error);
+          throw error;
         }
       },
       inject: [ConfigService],
     }),
     MulterModule.register({
-      dest: './uploads', // Set the destination folder for temp file storage
+      dest: './uploads',
     }),
     BookModule,
     LibraryModule,
