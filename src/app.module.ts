@@ -23,7 +23,9 @@ import { MulterModule } from '@nestjs/platform-express';
         const dialect = (rawDialect === 'postgresql' ? 'postgres' : rawDialect) as any;
         const host = configService.get<string>('DB_HOST');
         const port = Number(configService.get<string | number>('DB_PORT')) || 5432;
-        const username = configService.get<string>('DB_USER');
+        const username =
+          configService.get<string>('DB_USERNAME') ||
+          configService.get<string>('DB_USER');
         const password = configService.get<string>('DB_PASSWORD');
         const database = configService.get<string>('DB_DATABASE');
         const useSsl =
