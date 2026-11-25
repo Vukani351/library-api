@@ -60,7 +60,7 @@ export class UserService {
         description: `${parsed_user.name}'s library`,
       } as Library);
 
-      const payload = { email: parsed_user.email, name: parsed_user.name };
+      const payload = { user_id: parsed_user.id, email: parsed_user.email, name: parsed_user.name };
       const token = this.jwtService.sign(payload);
       return {
         token: token,
