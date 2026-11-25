@@ -4,18 +4,23 @@ import * as dotenv from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const environment = process.env.NODE_ENV || 'development';
-  dotenv.config({ path: `.env.${environment}` });
+  try {
+    const environment = process.env.NODE_ENV || 'development';
+    dotenv.config({ path: `.env.${environment}` });
 
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
+    const app = await NestFactory.create(AppModule);
+    app.enableCors();
 
-  // Activating the global validation pipe.
-  // 'whitelist: true' ensures any properties NOT defined in the DTO are stripped out automatically.
-  // 'transform: true' converts incoming plain objects to class instances.
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  // ---------------------
-  
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+    // Activating the global validation pipe.
+    // 'whitelist: true' ensures any properties NOT defined in the DTO are stripped out automatically.
+    // 'transform: true' converts incoming plain objects to class instances.
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    // ---------------------
+
+    await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  } catch (error) {
+    console.error('Failed to connect to the database during application startup.', error);
+    process.exit(1);
+  }
 }
 bootstrap();

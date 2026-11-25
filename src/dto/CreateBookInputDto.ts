@@ -10,17 +10,19 @@ export class CreateBookInputDto {
   @IsNotEmpty({ message: 'Author is required.' })
   author!: string;
 
+  // owner_id and library_id are now derived from request context (JWT and URL params)
+  // These fields are accepted but ignored for security reasons
   @IsInt()
-  @IsNotEmpty({ message: 'Book must have an owner_id.' })
-  owner_id!: number;
+  @IsOptional()
+  owner_id?: number;
 
   @IsInt()
-  @IsNotEmpty({ message: 'Book must belong to a library (library_id).' })
-  library_id!: number;
+  @IsOptional()
+  library_id?: number;
 
   @IsString()
-  @IsNotEmpty({ message: 'Initial status is required.' })
-  status!: string;
+  @IsOptional()
+  status?: string;
 
   // Optional inputs (allowed to be missing)
   @IsString()
@@ -38,6 +40,10 @@ export class CreateBookInputDto {
   @IsDateString()
   @IsOptional()
   return_by_date?: string;
+
+  @IsString()
+  @IsOptional()
+  is_private?: string;
 }
 
 // 2. DTO representing the *entire* request wrapper.

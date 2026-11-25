@@ -14,7 +14,7 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     migrationStorageTableName: 'sequelize_meta',
     dialectOptions: {
-      multipleStatements: true     // ← allow your library.sql to run as one chunk
+      multipleStatements: true
     },
   },
   production: {
@@ -26,7 +26,7 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     migrationStorageTableName: 'sequelize_meta',
     dialectOptions: {
-      multipleStatements: true     // ← allow your library.sql to run as one chunk
+      multipleStatements: true
     },
   }
 };
