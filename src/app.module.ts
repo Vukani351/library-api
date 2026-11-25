@@ -1,4 +1,4 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
@@ -12,39 +12,69 @@ import { MulterModule } from '@nestjs/platform-express';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'development'
-        ? '.env.development'
-        : '.env',
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      envFilePath:
+        process.env.NODE_ENV === 'development' ? '.env.development' : '.env',
     }),
     SequelizeModule.forRootAsync({
-      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
+        const rawDialect = configService.get<string>('DB_DIALECT') || 'postgres';
+        const dialect = (rawDialect === 'postgresql' ? 'postgres' : rawDialect) as any;
+        const host = configService.get<string>('DB_HOST');
+        const port = Number(configService.get<string | number>('DB_PORT')) || 5432;
+        const username = configService.get<string>('DB_USER');
+        const password = configService.get<string>('DB_PASSWORD');
+        const database = configService.get<string>('DB_DATABASE');
+        const useSsl =
+          configService.get<string>('DB_SSL') === 'true' ||
+          process.env.NODE_ENV === 'production';
+
         const dbConfig = {
-          dialect: configService.get<string>('DB_DIALECT') as any,
-          host: configService.get<string>('DB_HOST'),
-          port: configService.get<number>('DB_PORT'),
-          username: configService.get<string>('DB_USER'),
-          password: configService.get<string>('DB_PASSWORD'),
-          database: configService.get<string>('DB_DATABASE'),
+          dialect,
+          host,
+          port,
+          username,
+          password,
+          database,
         };
 
-        console.warn('Attempting to connect to the database with config:', {
-          ...dbConfig,
-          password: dbConfig.password ? '***' : undefined,
-        });
+        console.warn(
+          'Attempting to connect to the database with config:',
+          JSON.stringify({
+            dialect: dbConfig.dialect ?? null,
+            host: dbConfig.host ?? null,
+            port: dbConfig.port ?? null,
+            username: dbConfig.username ?? null,
+            database: dbConfig.database ?? null,
+            ssl: useSsl,
+            password: dbConfig.password ? '***' : null,
+          }),
+        );
 
         try {
-          return {
+          const sequelizeOptions: Record<string, any> = {
             ...dbConfig,
             autoLoadModels: true,
             synchronize: true,
           };
+
+          if (useSsl) {
+            sequelizeOptions.dialectOptions = {
+              ssl: {
+                require: true,
+                rejectUnauthorized: false,
+              },
+            };
+          }
+
+          console.warn('Database configuration prepared successfully.');
+          return sequelizeOptions;
         } catch (error) {
           console.error('Failed to prepare database configuration.', error);
           throw error;
         }
       },
-      inject: [ConfigService],
     }),
     MulterModule.register({
       dest: './uploads',
@@ -56,4 +86,4 @@ import { MulterModule } from '@nestjs/platform-express';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
