@@ -484,7 +484,7 @@ export class BookService {
     const copy = await this.libraryBookModel.findOne({
         where: {
           book_id: id,
-          owner_id: 1
+          // owner_id: 1
         },
         include: [{ model: Book, as: 'book' }]
       })
