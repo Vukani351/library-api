@@ -4,6 +4,7 @@ import { UserController } from './user.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../models/user.model';
 import { Library } from '../models/library.model';
+import { Wishlist } from '../models/wishlist.model';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwtConstants';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
@@ -11,7 +12,7 @@ import { ImageFactory } from '../cloudinary/image.factory';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([User, Library]),
+    SequelizeModule.forFeature([User, Library, Wishlist]),
     JwtModule.register({
       secret: jwtConstants.secret,
     }), 

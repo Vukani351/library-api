@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../models/user.model';
 import { Library } from '../models/library.model';
+import { Wishlist } from '../models/wishlist.model';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class UserService {
   constructor(
     @InjectModel(User) private userModel: typeof User,
     @InjectModel(Library) private libraryModel: typeof Library,
+    @InjectModel(Wishlist) private wishlistModel: typeof Wishlist,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -60,11 +62,18 @@ export class UserService {
         description: `${parsed_user.name}'s library`,
       } as Library);
 
+      const wishlist = await this.wishlistModel.create({
+        user_id: parsed_user.id,
+        name: 'Currently Reading',
+        accessibility: false,
+      } as Wishlist);
+
       const payload = { user_id: parsed_user.id, email: parsed_user.email, name: parsed_user.name };
       const token = this.jwtService.sign(payload);
       return {
         token: token,
         library: library.get({ plain: true }),
+        wishlist: wishlist.get({ plain: true }),
       };
     } catch (error) {
       console.log('error: \n', error);
